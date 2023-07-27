@@ -4,3 +4,4 @@ pandas
 streamlit
 networkx
 pyvis
+pydeck
