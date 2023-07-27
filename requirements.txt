@@ -5,7 +5,7 @@ astroML>=0.2,<1.0
 scikit-learn>=0.14.1,<1.0.0
 rpy2>=2.4.3,<3.0.0
 ipython>=8.14.0
-get_ipython()
+get_ipython()>=8.14.0
 altair
 pandas
 streamlit
