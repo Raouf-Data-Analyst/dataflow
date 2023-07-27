@@ -1,6 +1,6 @@
 numpy
 matplotlib
-Ipython
+ipython>=8.14.0
 get_ipython
 pandas
 streamlit
