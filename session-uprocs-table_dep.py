@@ -3508,7 +3508,7 @@ def plot_network_graph():
         HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
 
     # Load HTML file in HTML component for display on Streamlit page
-    components.html(HtmlFile.read(), height=435)
+    st.components.html(HtmlFile.read(), height=435)
 
 
 
