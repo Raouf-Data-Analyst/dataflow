@@ -1785,20 +1785,14 @@ def plot_network_graph():
         source, target = edge
         nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
 
-    nt.show_buttons(filter_=['physics'])
     # Save the visualization as an HTML file
-    nt.save_graph("data_flow_diagram.html")
-
-    # Display the visualization in the Jupyter Notebook
-    nt.show("data_flow_diagram.html")
+    nt.to_html("data_flow_diagram.html", open_browser=True, notebook_display=False)
     # Display the interactive data flow diagram in the Streamlit app using st.pydeck_chart()
     st.title("Data Flow Diagram")
     st.pydeck_chart(nt)
     
-    
 def main():
-    st.title("Network Graph Visualization with Streamlit")
-    st.write("Here's a simple network graph plotted using NetworkX and displayed with Streamlit.")
+    st.title("Network Graph Visualization")
     plot_network_graph()
 
 if __name__ == "__main__":
