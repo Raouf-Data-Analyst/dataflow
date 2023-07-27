@@ -1794,7 +1794,7 @@ def plot_network_graph():
     st.title("Interactive Network Diagram")
     with open(html_file, "r") as f:
         html_content = f.read()
-        st.components.v1.html(html_content, height=800)
+        st.write(html_content)
     
 def main():
     st.title("Network Graph Visualization")
