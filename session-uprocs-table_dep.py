@@ -1786,15 +1786,15 @@ def plot_network_graph():
         nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
         
 
-    # Save the Pyvis Network as an HTML file
     html_file = "network_diagram.html"
     nt.show(html_file)
 
-    # Display the content of the HTML file in the Streamlit app
+
     st.title("Interactive Network Diagram")
     with open(html_file, "r") as f:
         html_content = f.read()
         st.components.v1.html(html_content, height=800)
+
 
 
 
