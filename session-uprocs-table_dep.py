@@ -1,16 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[3]:
-
-
-get_ipython().system('pip install pyvis')
-get_ipython().system('pip install networkx')
-
-
-# In[1]:
-
-
 data = """
 {
     "XXXJYGYLBP": {
