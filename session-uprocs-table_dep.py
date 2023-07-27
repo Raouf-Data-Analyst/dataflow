@@ -3495,24 +3495,20 @@ def plot_network_graph():
         source, target = edge
         nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
 
-    nt.show_buttons(filter_=['physics'])
-    # Save the visualization as an HTML file
-    nt.save_graph("data_flow_diagram.html")
+    # Save and read graph as HTML file (on Streamlit Sharing)
+    try:
+        path = '/tmp'
+        nt.save_graph(f'{path}/pyvis_graph.html')
+        HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
 
-    # Display the visualization in the Jupyter Notebook
-    nt.show("data_flow_diagram.html")
-    
-    # Display the interactive data flow diagram in the Streamlit app using st.pydeck_chart()
-    st.title("Data Flow Diagram")
-    st.pydeck_chart(nt)
-    
-    
-def main():
-    st.title("Network Graph Visualization with Streamlit")
-    st.write("Here's a simple network graph plotted using NetworkX and displayed with Streamlit.")
-    plot_network_graph()
+    # Save and read graph as HTML file (locally)
+    except:
+        path = '/html_files'
+        nt.save_graph(f'{path}/pyvis_graph.html')
+        HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
 
-if __name__ == "__main__":
-    main()
+    # Load HTML file in HTML component for display on Streamlit page
+    components.html(HtmlFile.read(), height=435)
+
 
 
