@@ -1755,7 +1755,7 @@ def plot_network_graph():
     G.add_edges_from(edges)
 
     # Plot the interactived diagram using pyvis
-    nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook=True,cdn_resources='remote', select_menu = True)  
+    nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook= False, cdn=False, select_menu = True)  
 
     # Define colors for uprocs, input/output nodes, and nodes with table_deps
     uprocs_color = "#FF0000"  # Red for uprocs
@@ -1785,8 +1785,7 @@ def plot_network_graph():
         source, target = edge
         nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
 
-    # Save the visualization as an HTML file
-    nt.save_graph("data_flow_diagram.html")
+
     # Display the interactive data flow diagram in the Streamlit app using st.pydeck_chart()
     st.title("Data Flow Diagram")
     st.pydeck_chart(nt)
