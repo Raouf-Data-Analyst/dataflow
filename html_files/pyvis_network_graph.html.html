@@ -1,0 +1,794 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script>function neighbourhoodHighlight(params) {
+  // console.log("in nieghbourhoodhighlight");
+  allNodes = nodes.get({ returnType: "Object" });
+  // originalNodes = JSON.parse(JSON.stringify(allNodes));
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    highlightActive = true;
+    var i, j;
+    var selectedNode = params.nodes[0];
+    var degrees = 2;
+
+    // mark all nodes as hard to read.
+    for (let nodeId in allNodes) {
+      // nodeColors[nodeId] = allNodes[nodeId].color;
+      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+      if (allNodes[nodeId].hiddenLabel === undefined) {
+        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+    var connectedNodes = network.getConnectedNodes(selectedNode);
+    var allConnectedNodes = [];
+
+    // get the second degree nodes
+    for (i = 1; i < degrees; i++) {
+      for (j = 0; j < connectedNodes.length; j++) {
+        allConnectedNodes = allConnectedNodes.concat(
+          network.getConnectedNodes(connectedNodes[j])
+        );
+      }
+    }
+
+    // all second degree nodes get a different color and their label back
+    for (i = 0; i < allConnectedNodes.length; i++) {
+      // allNodes[allConnectedNodes[i]].color = "pink";
+      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[allConnectedNodes[i]].label =
+          allNodes[allConnectedNodes[i]].hiddenLabel;
+        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // all first degree nodes get their own color and their label back
+    for (i = 0; i < connectedNodes.length; i++) {
+      // allNodes[connectedNodes[i]].color = undefined;
+      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[connectedNodes[i]].label =
+          allNodes[connectedNodes[i]].hiddenLabel;
+        allNodes[connectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // the main node gets its own color and its label back.
+    // allNodes[selectedNode].color = undefined;
+    allNodes[selectedNode].color = nodeColors[selectedNode];
+    if (allNodes[selectedNode].hiddenLabel !== undefined) {
+      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+      allNodes[selectedNode].hiddenLabel = undefined;
+    }
+  } else if (highlightActive === true) {
+    // console.log("highlightActive was true");
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      // allNodes[nodeId].color = "purple";
+      allNodes[nodeId].color = nodeColors[nodeId];
+      // delete allNodes[nodeId].color;
+      if (allNodes[nodeId].hiddenLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+        allNodes[nodeId].hiddenLabel = undefined;
+      }
+    }
+    highlightActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    // console.log("Nothing was selected");
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        // allNodes[nodeId].color = {};
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function filterHighlight(params) {
+  allNodes = nodes.get({ returnType: "Object" });
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    filterActive = true;
+    let selectedNodes = params.nodes;
+
+    // hiding all nodes and saving the label
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = true;
+      if (allNodes[nodeId].savedLabel === undefined) {
+        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+
+    for (let i=0; i < selectedNodes.length; i++) {
+      allNodes[selectedNodes[i]].hidden = false;
+      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+        allNodes[selectedNodes[i]].savedLabel = undefined;
+      }
+    }
+
+  } else if (filterActive === true) {
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = false;
+      if (allNodes[nodeId].savedLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+        allNodes[nodeId].savedLabel = undefined;
+      }
+    }
+    filterActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function selectNode(nodes) {
+  network.selectNodes(nodes);
+  neighbourhoodHighlight({ nodes: nodes });
+  return nodes;
+}
+
+function selectNodes(nodes) {
+  network.selectNodes(nodes);
+  filterHighlight({nodes: nodes});
+  return nodes;
+}
+
+function highlightFilter(filter) {
+  let selectedNodes = []
+  let selectedProp = filter['property']
+  if (filter['item'] === 'node') {
+    let allNodes = nodes.get({ returnType: "Object" });
+    for (let nodeId in allNodes) {
+      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+        selectedNodes.push(nodeId)
+      }
+    }
+  }
+  else if (filter['item'] === 'edge'){
+    let allEdges = edges.get({returnType: 'object'});
+    // check if the selected property exists for selected edge and select the nodes connected to the edge
+    for (let edge in allEdges) {
+      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+        selectedNodes.push(allEdges[edge]['from'])
+        selectedNodes.push(allEdges[edge]['to'])
+      }
+    }
+  }
+  selectNodes(selectedNodes)
+}</script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+            
+            
+            
+            
+            
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.0-rc.4/css/tom-select.min.css" integrity="sha512-43fHB3GLgZfz8QXl1RPQ8O66oIgv3po9cJ5erMt1c4QISq9dYb195T3vr5ImnJPXuVroKcGBPXBFKETW8jrPNQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.0.0-rc.4/js/tom-select.complete.js" integrity="sha512-jeF9CfnvzDiw9G9xiksVjxR2lib44Gnovvkv+3CgCG6NXCD4gqlA5nDAVW5WjpA+i+/zKsUWV5xNEbW1X/HH0Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 750px;
+                 background-color: #222222;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+             #loadingBar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width: 100%;
+                 height: 750px;
+                 background-color:rgba(200,200,200,0.8);
+                 -webkit-transition: all 0.5s ease;
+                 -moz-transition: all 0.5s ease;
+                 -ms-transition: all 0.5s ease;
+                 -o-transition: all 0.5s ease;
+                 transition: all 0.5s ease;
+                 opacity:1;
+             }
+
+             #bar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width:20px;
+                 height:20px;
+                 margin:auto auto auto auto;
+                 border-radius:11px;
+                 border:2px solid rgba(30,30,30,0.05);
+                 background: rgb(0, 173, 246); /* Old browsers */
+                 box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
+             }
+
+             #border {
+                 position:absolute;
+                 top:10px;
+                 left:10px;
+                 width:500px;
+                 height:23px;
+                 margin:auto auto auto auto;
+                 box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+                 border-radius:10px;
+             }
+
+             #text {
+                 position:absolute;
+                 top:8px;
+                 left:530px;
+                 width:30px;
+                 height:50px;
+                 margin:auto auto auto auto;
+                 font-size:22px;
+                 color: #000000;
+             }
+
+             div.outerBorder {
+                 position:relative;
+                 top:400px;
+                 width:600px;
+                 height:44px;
+                 margin:auto auto auto auto;
+                 border:8px solid rgba(0,0,0,0.1);
+                 background: rgb(252,252,252); /* Old browsers */
+                 background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
+                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
+                 background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
+                 background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
+                 background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
+                 background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
+                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+                 border-radius:72px;
+                 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+             }
+             
+
+             
+             #config {
+                 float: left;
+                 width: 400px;
+                 height: 600px;
+             }
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+                <div id="select-menu" class="card-header">
+                    <div class="row no-gutters">
+                        <div class="col-10 pb-2">
+                            <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="selectNode([value]);"
+                            id="select-node"
+                            placeholder="Select node..."
+                            >
+                                <option selected>Select a Node by ID</option>
+                                
+                                    <option value="XXXJYGYLBP">XXXJYGYLBP</option>
+                                
+                                    <option value="XXXJZMANJY">XXXJZMANJY</option>
+                                
+                                    <option value="XXXJNVSFXW">XXXJNVSFXW</option>
+                                
+                                    <option value="XXXJVYPKUA">XXXJVYPKUA</option>
+                                
+                                    <option value="XXXJVQUYNB">XXXJVQUYNB</option>
+                                
+                                    <option value="XXXJKTZUJA">XXXJKTZUJA</option>
+                                
+                                    <option value="XXXJHEBIOV">XXXJHEBIOV</option>
+                                
+                                    <option value="XXXJDGENJJ">XXXJDGENJJ</option>
+                                
+                                    <option value="XXXJSDVDD">XXXJSDVDD</option>
+                                
+                                    <option value="INTER.KLT_T_AQXNPUV">INTER.KLT_T_AQXNPUV</option>
+                                
+                                    <option value="XXXJEPYWX">XXXJEPYWX</option>
+                                
+                                    <option value="INTER.RHC_T_SKKFNYZ">INTER.RHC_T_SKKFNYZ</option>
+                                
+                                    <option value="XXXJTNCPH">XXXJTNCPH</option>
+                                
+                                    <option value="INTER.RSI_T_TZPNIWZ">INTER.RSI_T_TZPNIWZ</option>
+                                
+                                    <option value="XXXJSLSPZ">XXXJSLSPZ</option>
+                                
+                                    <option value="XXXJVOCYGI">XXXJVOCYGI</option>
+                                
+                                    <option value="XXXJBOJLCT">XXXJBOJLCT</option>
+                                
+                                    <option value="XXXJTFQHDL">XXXJTFQHDL</option>
+                                
+                                    <option value="XXXJRKIPAN">XXXJRKIPAN</option>
+                                
+                                    <option value="XXXJHWPKNB">XXXJHWPKNB</option>
+                                
+                                    <option value="XXXJYRHJI">XXXJYRHJI</option>
+                                
+                                    <option value="INTER.MBL_T_WUUTVEQ">INTER.MBL_T_WUUTVEQ</option>
+                                
+                                    <option value="XXXJTXHTT">XXXJTXHTT</option>
+                                
+                                    <option value="INTER.GVK_T_KLRRRQB">INTER.GVK_T_KLRRRQB</option>
+                                
+                                    <option value="XXXJSYEFB">XXXJSYEFB</option>
+                                
+                                    <option value="XXXJCISGE">XXXJCISGE</option>
+                                
+                                    <option value="XXXJZAJAOE">XXXJZAJAOE</option>
+                                
+                                    <option value="XXXJMYWBPH">XXXJMYWBPH</option>
+                                
+                                    <option value="XXXJJLVMH">XXXJJLVMH</option>
+                                
+                                    <option value="INTER.RDG_T_GTYDIIR">INTER.RDG_T_GTYDIIR</option>
+                                
+                                    <option value="XXXJLBPET">XXXJLBPET</option>
+                                
+                                    <option value="XXXJSVOXV">XXXJSVOXV</option>
+                                
+                                    <option value="XXXJBIEMQ">XXXJBIEMQ</option>
+                                
+                                    <option value="XXXJGSACLH">XXXJGSACLH</option>
+                                
+                                    <option value="XXXJVNGSW">XXXJVNGSW</option>
+                                
+                                    <option value="INTER.KCT_T_ZAFHSGG">INTER.KCT_T_ZAFHSGG</option>
+                                
+                                    <option value="XXXJNSERL">XXXJNSERL</option>
+                                
+                                    <option value="XXXJVAOGO">XXXJVAOGO</option>
+                                
+                                    <option value="XXXJIRDTZ">XXXJIRDTZ</option>
+                                
+                                    <option value="INTER.JMZ_T_HLVIKJV">INTER.JMZ_T_HLVIKJV</option>
+                                
+                                    <option value="INTER.QPD_T_VMVGKYG">INTER.QPD_T_VMVGKYG</option>
+                                
+                                    <option value="XXXJWYOXD">XXXJWYOXD</option>
+                                
+                                    <option value="XXXJHBOCQC">XXXJHBOCQC</option>
+                                
+                                    <option value="XXXJOTBSZ">XXXJOTBSZ</option>
+                                
+                                    <option value="INTER.GIN_T_HZFLBBC">INTER.GIN_T_HZFLBBC</option>
+                                
+                                    <option value="XXXJFRHOP">XXXJFRHOP</option>
+                                
+                                    <option value="XXXJZSCVBF">XXXJZSCVBF</option>
+                                
+                                    <option value="XXXJFFYZO">XXXJFFYZO</option>
+                                
+                                    <option value="INTER.ZJT_T_VSMFOIT">INTER.ZJT_T_VSMFOIT</option>
+                                
+                                    <option value="INTER.SFK_T_AYVDYVC">INTER.SFK_T_AYVDYVC</option>
+                                
+                                    <option value="XXXJRHGKA">XXXJRHGKA</option>
+                                
+                                    <option value="XXXJMBSFG">XXXJMBSFG</option>
+                                
+                                    <option value="XXXJUFGMD">XXXJUFGMD</option>
+                                
+                                    <option value="INTER.AEE_T_HTRZDSL">INTER.AEE_T_HTRZDSL</option>
+                                
+                                    <option value="XXXJNUDRY">XXXJNUDRY</option>
+                                
+                                    <option value="XXXJQGQWS">XXXJQGQWS</option>
+                                
+                                    <option value="INTER.TCR_T_KHMTLHD">INTER.TCR_T_KHMTLHD</option>
+                                
+                                    <option value="INTER.FSQ_T_ETPTVRN">INTER.FSQ_T_ETPTVRN</option>
+                                
+                                    <option value="XXXJUCESC">XXXJUCESC</option>
+                                
+                                    <option value="INTER.UEE_T_ETGRAPH">INTER.UEE_T_ETGRAPH</option>
+                                
+                                    <option value="XXXJYUHFC">XXXJYUHFC</option>
+                                
+                                    <option value="XXXJDNKTJ">XXXJDNKTJ</option>
+                                
+                                    <option value="INTER.SLV_T_HFMQWPH">INTER.SLV_T_HFMQWPH</option>
+                                
+                                    <option value="XXXJNUOQY">XXXJNUOQY</option>
+                                
+                                    <option value="XXXJLAGKW">XXXJLAGKW</option>
+                                
+                                    <option value="XXXJBKIWN">XXXJBKIWN</option>
+                                
+                                    <option value="XXXJRFFMF">XXXJRFFMF</option>
+                                
+                                    <option value="XXXJBDSVN">XXXJBDSVN</option>
+                                
+                                    <option value="XXXJUIBGC">XXXJUIBGC</option>
+                                
+                                    <option value="XXXJIOTUC">XXXJIOTUC</option>
+                                
+                                    <option value="XXXJCGFHZ">XXXJCGFHZ</option>
+                                
+                                    <option value="XXXJMOFUO">XXXJMOFUO</option>
+                                
+                                    <option value="XXXJPAGQX">XXXJPAGQX</option>
+                                
+                                    <option value="XXXJDSGCQ">XXXJDSGCQ</option>
+                                
+                                    <option value="XXXJOJHHL">XXXJOJHHL</option>
+                                
+                                    <option value="XXXJHKGDI">XXXJHKGDI</option>
+                                
+                                    <option value="XXXJMMKRC">XXXJMMKRC</option>
+                                
+                                    <option value="INTER.RCZ_T_HWETBMM">INTER.RCZ_T_HWETBMM</option>
+                                
+                                    <option value="XXXJPPRKG">XXXJPPRKG</option>
+                                
+                                    <option value="XXXJCEQIN">XXXJCEQIN</option>
+                                
+                                    <option value="XXXJOABQG">XXXJOABQG</option>
+                                
+                                    <option value="XXXJALBXWD">XXXJALBXWD</option>
+                                
+                                    <option value="XXXJFEGAW">XXXJFEGAW</option>
+                                
+                                    <option value="INTER.SLZ_T_XZCQYZF">INTER.SLZ_T_XZCQYZF</option>
+                                
+                                    <option value="XXXJKJEGZ">XXXJKJEGZ</option>
+                                
+                                    <option value="INTER.QXG_T_AOWBYUW">INTER.QXG_T_AOWBYUW</option>
+                                
+                                    <option value="XXXJYFIBY">XXXJYFIBY</option>
+                                
+                                    <option value="INTER.ORE_T_QOHBWDZ">INTER.ORE_T_QOHBWDZ</option>
+                                
+                                    <option value="XXXJQHGLN">XXXJQHGLN</option>
+                                
+                                    <option value="XXXJMSPMF">XXXJMSPMF</option>
+                                
+                                    <option value="INTER.MTE_T_AOVNFUV">INTER.MTE_T_AOVNFUV</option>
+                                
+                                    <option value="XXXJLHDYP">XXXJLHDYP</option>
+                                
+                                    <option value="INTER.SFS_T_NDPLFPY">INTER.SFS_T_NDPLFPY</option>
+                                
+                                    <option value="XXXJTXHWT">XXXJTXHWT</option>
+                                
+                                    <option value="XXXJICUMK">XXXJICUMK</option>
+                                
+                                    <option value="XXXJAGDAA">XXXJAGDAA</option>
+                                
+                                    <option value="XXXJCFMFW">XXXJCFMFW</option>
+                                
+                                    <option value="XXXJJIFPH">XXXJJIFPH</option>
+                                
+                                    <option value="INTER.TLI_T_SZNOYTS">INTER.TLI_T_SZNOYTS</option>
+                                
+                                    <option value="XXXJIATIW">XXXJIATIW</option>
+                                
+                                    <option value="XXXJYXVXW">XXXJYXVXW</option>
+                                
+                                    <option value="XXXJPUWOI">XXXJPUWOI</option>
+                                
+                                    <option value="XXXJUTEWL">XXXJUTEWL</option>
+                                
+                                    <option value="XXXJTSMVS">XXXJTSMVS</option>
+                                
+                                    <option value="INTER.GVV_T_QCVGBRW">INTER.GVV_T_QCVGBRW</option>
+                                
+                                    <option value="XXXJZKEID">XXXJZKEID</option>
+                                
+                                    <option value="INTER.FYA_T_ITTRZUF">INTER.FYA_T_ITTRZUF</option>
+                                
+                                    <option value="XXXJWERFV">XXXJWERFV</option>
+                                
+                                    <option value="INTER.KUJ_T_SFPOKWN">INTER.KUJ_T_SFPOKWN</option>
+                                
+                                    <option value="XXXJMIISL">XXXJMIISL</option>
+                                
+                                    <option value="XXXJPDABF">XXXJPDABF</option>
+                                
+                                    <option value="XXXJQRWWW">XXXJQRWWW</option>
+                                
+                                    <option value="XXXJWHBCJ">XXXJWHBCJ</option>
+                                
+                                    <option value="XXXJMIVOJ">XXXJMIVOJ</option>
+                                
+                                    <option value="XXXJEDAPG">XXXJEDAPG</option>
+                                
+                                    <option value="XXXJPOCKR">XXXJPOCKR</option>
+                                
+                                    <option value="XXXJMXBTL">XXXJMXBTL</option>
+                                
+                                    <option value="XXXJIRNJW">XXXJIRNJW</option>
+                                
+                                    <option value="XXXJRQRJX">XXXJRQRJX</option>
+                                
+                                    <option value="INTER.DYR_T_RCNYAJQ">INTER.DYR_T_RCNYAJQ</option>
+                                
+                                    <option value="XXXJUWMPJ">XXXJUWMPJ</option>
+                                
+                                    <option value="XXXJIRHJJ">XXXJIRHJJ</option>
+                                
+                                    <option value="XXXJZPWDY">XXXJZPWDY</option>
+                                
+                                    <option value="XXXJKFIJM">XXXJKFIJM</option>
+                                
+                                    <option value="XXXJJNFVQ">XXXJJNFVQ</option>
+                                
+                                    <option value="XXXJEYGAS">XXXJEYGAS</option>
+                                
+                                    <option value="XXXJXQEPX">XXXJXQEPX</option>
+                                
+                                    <option value="XXXJKAMYQ">XXXJKAMYQ</option>
+                                
+                                    <option value="XXXJLUDRXD">XXXJLUDRXD</option>
+                                
+                                    <option value="XXXJWFSFU">XXXJWFSFU</option>
+                                
+                                    <option value="INTER.LVC_T_ZAXZOUT">INTER.LVC_T_ZAXZOUT</option>
+                                
+                                    <option value="XXXJENYYS">XXXJENYYS</option>
+                                
+                                    <option value="INTER.GUV_T_VUXWKPR">INTER.GUV_T_VUXWKPR</option>
+                                
+                                    <option value="XXXJGSHNU">XXXJGSHNU</option>
+                                
+                                    <option value="INTER.NCT_T_WGJQWXQ">INTER.NCT_T_WGJQWXQ</option>
+                                
+                                    <option value="XXXJTZGFZ">XXXJTZGFZ</option>
+                                
+                                    <option value="INTER.HTB_T_TSIFPBT">INTER.HTB_T_TSIFPBT</option>
+                                
+                                    <option value="XXXJLVIAE">XXXJLVIAE</option>
+                                
+                                    <option value="INTER.YFY_T_ROBJFNW">INTER.YFY_T_ROBJFNW</option>
+                                
+                                    <option value="XXXJBUZWB">XXXJBUZWB</option>
+                                
+                                    <option value="INTER.BZD_T_SNRPCDG">INTER.BZD_T_SNRPCDG</option>
+                                
+                                    <option value="XXXJJIQWJ">XXXJJIQWJ</option>
+                                
+                                    <option value="XXXJDKSIH">XXXJDKSIH</option>
+                                
+                                    <option value="XXXJYVFWO">XXXJYVFWO</option>
+                                
+                                    <option value="XXXJTYFCM">XXXJTYFCM</option>
+                                
+                                    <option value="INTER.YWN_T_IGYYNXD">INTER.YWN_T_IGYYNXD</option>
+                                
+                                    <option value="XXXJUTFFV">XXXJUTFFV</option>
+                                
+                                    <option value="XXXJMPHWO">XXXJMPHWO</option>
+                                
+                                    <option value="XXXJLSJPC">XXXJLSJPC</option>
+                                
+                                    <option value="INTER.YWK_T_RZZWOMU">INTER.YWK_T_RZZWOMU</option>
+                                
+                                    <option value="XXXJMHQUC">XXXJMHQUC</option>
+                                
+                            </select>
+                        </div>
+                        <div class="col-2 pb-2">
+                            <button type="button" class="btn btn-primary btn-block" onclick="neighbourhoodHighlight({nodes: []});">Reset Selection</button>
+                        </div>
+                    </div>
+                </div>
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+            <div id="loadingBar">
+              <div class="outerBorder">
+                <div id="text">0%</div>
+                <div id="border">
+                  <div id="bar"></div>
+                </div>
+              </div>
+            </div>
+        
+        
+            <div id="config"></div>
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+                  new TomSelect("#select-node",{
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      }
+                  });
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#FF0000", "font": {"color": "white"}, "id": "XXXJYGYLBP", "label": "XXXJYGYLBP", "shape": "dot", "title": ""}, {"color": "#FF0000", "font": {"color": "white"}, "id": "XXXJZMANJY", "label": "XXXJZMANJY", "shape": "dot", "title": ""}, {"color": "#FF0000", "font": {"color": "white"}, "id": "XXXJNVSFXW", "label": "XXXJNVSFXW", "shape": "dot", "title": ""}, {"color": "#FF0000", "font": {"color": "white"}, "id": "XXXJVYPKUA", "label": "XXXJVYPKUA", "shape": "dot", "title": ""}, {"color": "#FF0000", "font": {"color": "white"}, "id": "XXXJVQUYNB", "label": "XXXJVQUYNB", "shape": "dot", "title": ""}, {"color": "#FF0000", "font": {"color": "white"}, "id": "XXXJKTZUJA", "label": "XXXJKTZUJA", "shape": "dot", "title": ""}, {"color": "#FF0000", "font": {"color": "white"}, "id": "XXXJHEBIOV", "label": "XXXJHEBIOV", "shape": "dot", "title": ""}, {"color": "#FF0000", "font": {"color": "white"}, "id": "XXXJDGENJJ", "label": "XXXJDGENJJ", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJSDVDD", "label": "XXXJSDVDD", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.KLT_T_AQXNPUV", "label": "INTER.KLT_T_AQXNPUV", "shape": "dot", "title": ["BASE.ELE_R_VYYWFVMS", "BASE.USN_R_KRDRVOJK", "VISION.EJH_A_PBTTHZET", "VISION.DSE_A_GKDGBHBR", "BASE.XZK_F_IHGDDHGG", "BASE.QHR_R_OJMFEOXE", "BASE.FFB_F_RQHDIGBN", "BASE.PJO_R_EFKGXBCN", "BASE.UOC_F_QMTYPUVF"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJEPYWX", "label": "XXXJEPYWX", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.RHC_T_SKKFNYZ", "label": "INTER.RHC_T_SKKFNYZ", "shape": "dot", "title": ["BASE.QHR_R_OJMFEOXE", "BASE.FXY_F_QMJHIEML", "VISION.EJH_A_PBTTHZET", "BASE.ZNF_R_QZQTENZM", "VISION.KKJ_A_FQELHEJF"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJTNCPH", "label": "XXXJTNCPH", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.RSI_T_TZPNIWZ", "label": "INTER.RSI_T_TZPNIWZ", "shape": "dot", "title": ["BASE.TWV_R_FKJIDEIR", "BASE.ELE_R_VYYWFVMS", "BASE.FXY_F_QMJHIEML", "BASE.QWJ_R_NIQXWDSX", "VISION.KKJ_A_FQELHEJF", "BASE.ONV_R_JDNMOSCF", "BASE.FFB_F_RQHDIGBN", "BASE.PJO_R_EFKGXBCN"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJSLSPZ", "label": "XXXJSLSPZ", "shape": "dot", "title": ""}, {"color": "#FF0000", "font": {"color": "white"}, "id": "XXXJVOCYGI", "label": "XXXJVOCYGI", "shape": "dot", "title": ""}, {"color": "#FF0000", "font": {"color": "white"}, "id": "XXXJBOJLCT", "label": "XXXJBOJLCT", "shape": "dot", "title": ""}, {"color": "#FF0000", "font": {"color": "white"}, "id": "XXXJTFQHDL", "label": "XXXJTFQHDL", "shape": "dot", "title": ""}, {"color": "#FF0000", "font": {"color": "white"}, "id": "XXXJRKIPAN", "label": "XXXJRKIPAN", "shape": "dot", "title": ""}, {"color": "#FF0000", "font": {"color": "white"}, "id": "XXXJHWPKNB", "label": "XXXJHWPKNB", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJYRHJI", "label": "XXXJYRHJI", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.MBL_T_WUUTVEQ", "label": "INTER.MBL_T_WUUTVEQ", "shape": "dot", "title": ["BASE.BBR_F_UUBFZAGG", "BASE.FFB_F_RQHDIGBN", "BASE.QHR_R_OJMFEOXE", "VISION.EJH_A_PBTTHZET"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJTXHTT", "label": "XXXJTXHTT", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.GVK_T_KLRRRQB", "label": "INTER.GVK_T_KLRRRQB", "shape": "dot", "title": ["BASE.TWV_R_FKJIDEIR", "BASE.ZNF_R_QZQTENZM", "VISION.EJH_A_PBTTHZET", "BASE.UOC_F_QMTYPUVF", "BASE.QWJ_R_NIQXWDSX", "VISION.KKJ_A_FQELHEJF"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJSYEFB", "label": "XXXJSYEFB", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJCISGE", "label": "XXXJCISGE", "shape": "dot", "title": ""}, {"color": "#FF0000", "font": {"color": "white"}, "id": "XXXJZAJAOE", "label": "XXXJZAJAOE", "shape": "dot", "title": ""}, {"color": "#FF0000", "font": {"color": "white"}, "id": "XXXJMYWBPH", "label": "XXXJMYWBPH", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJJLVMH", "label": "XXXJJLVMH", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.RDG_T_GTYDIIR", "label": "INTER.RDG_T_GTYDIIR", "shape": "dot", "title": ["BASE.USN_R_KRDRVOJK", "BASE.FXY_F_QMJHIEML", "VISION.EJH_A_PBTTHZET", "VISION.DSE_A_GKDGBHBR", "VISION.KKJ_A_FQELHEJF", "BASE.XZK_F_IHGDDHGG", "BASE.OWN_R_RNFYEAIM", "BASE.FFB_F_RQHDIGBN", "BASE.PJO_R_EFKGXBCN", "BASE.ZNF_R_QZQTENZM"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJLBPET", "label": "XXXJLBPET", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJSVOXV", "label": "XXXJSVOXV", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJBIEMQ", "label": "XXXJBIEMQ", "shape": "dot", "title": ""}, {"color": "#FF0000", "font": {"color": "white"}, "id": "XXXJGSACLH", "label": "XXXJGSACLH", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJVNGSW", "label": "XXXJVNGSW", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.KCT_T_ZAFHSGG", "label": "INTER.KCT_T_ZAFHSGG", "shape": "dot", "title": ["BASE.FXY_F_QMJHIEML", "VISION.DSE_A_GKDGBHBR", "VISION.EJH_A_PBTTHZET", "VISION.KKJ_A_FQELHEJF", "BASE.OWN_R_RNFYEAIM", "BASE.XZK_F_IHGDDHGG", "BASE.FFB_F_RQHDIGBN", "BASE.QHR_R_OJMFEOXE", "BASE.ZNF_R_QZQTENZM"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJNSERL", "label": "XXXJNSERL", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJVAOGO", "label": "XXXJVAOGO", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJIRDTZ", "label": "XXXJIRDTZ", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.JMZ_T_HLVIKJV", "label": "INTER.JMZ_T_HLVIKJV", "shape": "dot", "title": ["BASE.ELE_R_VYYWFVMS", "BASE.USN_R_KRDRVOJK", "VISION.EJH_A_PBTTHZET", "BASE.QWJ_R_NIQXWDSX", "VISION.KKJ_A_FQELHEJF", "BASE.OWN_R_RNFYEAIM", "BASE.XZK_F_IHGDDHGG", "BASE.ONV_R_JDNMOSCF", "BASE.PJO_R_EFKGXBCN", "BASE.ZNF_R_QZQTENZM"]}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.QPD_T_VMVGKYG", "label": "INTER.QPD_T_VMVGKYG", "shape": "dot", "title": ["BASE.BBR_F_UUBFZAGG", "BASE.FXY_F_QMJHIEML"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJWYOXD", "label": "XXXJWYOXD", "shape": "dot", "title": ""}, {"color": "#FF0000", "font": {"color": "white"}, "id": "XXXJHBOCQC", "label": "XXXJHBOCQC", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJOTBSZ", "label": "XXXJOTBSZ", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.GIN_T_HZFLBBC", "label": "INTER.GIN_T_HZFLBBC", "shape": "dot", "title": ["BASE.QHR_R_OJMFEOXE", "BASE.OWN_R_RNFYEAIM"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJFRHOP", "label": "XXXJFRHOP", "shape": "dot", "title": ""}, {"color": "#FF0000", "font": {"color": "white"}, "id": "XXXJZSCVBF", "label": "XXXJZSCVBF", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJFFYZO", "label": "XXXJFFYZO", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.ZJT_T_VSMFOIT", "label": "INTER.ZJT_T_VSMFOIT", "shape": "dot", "title": ["BASE.TWV_R_FKJIDEIR", "BASE.FFB_F_RQHDIGBN", "BASE.ROS_R_QPMFUQVM", "BASE.UOC_F_QMTYPUVF", "BASE.QWJ_R_NIQXWDSX", "BASE.ONV_R_JDNMOSCF"]}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.SFK_T_AYVDYVC", "label": "INTER.SFK_T_AYVDYVC", "shape": "dot", "title": ["BASE.QHR_R_OJMFEOXE", "VISION.DSE_A_GKDGBHBR", "BASE.UOC_F_QMTYPUVF", "BASE.ONV_R_JDNMOSCF", "BASE.XZK_F_IHGDDHGG"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJRHGKA", "label": "XXXJRHGKA", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJMBSFG", "label": "XXXJMBSFG", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJUFGMD", "label": "XXXJUFGMD", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.AEE_T_HTRZDSL", "label": "INTER.AEE_T_HTRZDSL", "shape": "dot", "title": ["BASE.ELE_R_VYYWFVMS", "BASE.FFB_F_RQHDIGBN", "BASE.QHR_R_OJMFEOXE", "BASE.UOC_F_QMTYPUVF", "BASE.QWJ_R_NIQXWDSX"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJNUDRY", "label": "XXXJNUDRY", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJQGQWS", "label": "XXXJQGQWS", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.TCR_T_KHMTLHD", "label": "INTER.TCR_T_KHMTLHD", "shape": "dot", "title": ["VISION.EJH_A_PBTTHZET", "VISION.DSE_A_GKDGBHBR", "BASE.QWJ_R_NIQXWDSX", "VISION.KKJ_A_FQELHEJF", "BASE.OWN_R_RNFYEAIM", "BASE.XZK_F_IHGDDHGG", "BASE.QHR_R_OJMFEOXE", "BASE.FFB_F_RQHDIGBN", "BASE.ROS_R_QPMFUQVM", "BASE.PJO_R_EFKGXBCN"]}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.FSQ_T_ETPTVRN", "label": "INTER.FSQ_T_ETPTVRN", "shape": "dot", "title": ["BASE.PJO_R_EFKGXBCN", "BASE.XZK_F_IHGDDHGG", "VISION.EJH_A_PBTTHZET"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJUCESC", "label": "XXXJUCESC", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.UEE_T_ETGRAPH", "label": "INTER.UEE_T_ETGRAPH", "shape": "dot", "title": ["BASE.TWV_R_FKJIDEIR", "BASE.BBR_F_UUBFZAGG", "BASE.FXY_F_QMJHIEML", "VISION.DSE_A_GKDGBHBR", "BASE.ONV_R_JDNMOSCF"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJYUHFC", "label": "XXXJYUHFC", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJDNKTJ", "label": "XXXJDNKTJ", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.SLV_T_HFMQWPH", "label": "INTER.SLV_T_HFMQWPH", "shape": "dot", "title": ["BASE.TWV_R_FKJIDEIR", "VISION.DSE_A_GKDGBHBR", "BASE.FFB_F_RQHDIGBN", "BASE.QHR_R_OJMFEOXE", "VISION.EJH_A_PBTTHZET", "BASE.QWJ_R_NIQXWDSX"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJNUOQY", "label": "XXXJNUOQY", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJLAGKW", "label": "XXXJLAGKW", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJBKIWN", "label": "XXXJBKIWN", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJRFFMF", "label": "XXXJRFFMF", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJBDSVN", "label": "XXXJBDSVN", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJUIBGC", "label": "XXXJUIBGC", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJIOTUC", "label": "XXXJIOTUC", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJCGFHZ", "label": "XXXJCGFHZ", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJMOFUO", "label": "XXXJMOFUO", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJPAGQX", "label": "XXXJPAGQX", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJDSGCQ", "label": "XXXJDSGCQ", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJOJHHL", "label": "XXXJOJHHL", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJHKGDI", "label": "XXXJHKGDI", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJMMKRC", "label": "XXXJMMKRC", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.RCZ_T_HWETBMM", "label": "INTER.RCZ_T_HWETBMM", "shape": "dot", "title": ["BASE.TWV_R_FKJIDEIR", "BASE.ROS_R_QPMFUQVM", "BASE.PJO_R_EFKGXBCN", "BASE.ZNF_R_QZQTENZM", "BASE.ONV_R_JDNMOSCF", "BASE.UOC_F_QMTYPUVF"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJPPRKG", "label": "XXXJPPRKG", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJCEQIN", "label": "XXXJCEQIN", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJOABQG", "label": "XXXJOABQG", "shape": "dot", "title": ""}, {"color": "#FF0000", "font": {"color": "white"}, "id": "XXXJALBXWD", "label": "XXXJALBXWD", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJFEGAW", "label": "XXXJFEGAW", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.SLZ_T_XZCQYZF", "label": "INTER.SLZ_T_XZCQYZF", "shape": "dot", "title": ["BASE.ELE_R_VYYWFVMS", "BASE.USN_R_KRDRVOJK", "VISION.DSE_A_GKDGBHBR", "BASE.QWJ_R_NIQXWDSX", "BASE.ONV_R_JDNMOSCF", "BASE.FFB_F_RQHDIGBN", "BASE.ROS_R_QPMFUQVM", "BASE.ZNF_R_QZQTENZM"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJKJEGZ", "label": "XXXJKJEGZ", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.QXG_T_AOWBYUW", "label": "INTER.QXG_T_AOWBYUW", "shape": "dot", "title": ["BASE.PJO_R_EFKGXBCN", "BASE.QWJ_R_NIQXWDSX", "BASE.ELE_R_VYYWFVMS", "BASE.ROS_R_QPMFUQVM"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJYFIBY", "label": "XXXJYFIBY", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.ORE_T_QOHBWDZ", "label": "INTER.ORE_T_QOHBWDZ", "shape": "dot", "title": ["BASE.TWV_R_FKJIDEIR", "BASE.FFB_F_RQHDIGBN", "VISION.EJH_A_PBTTHZET", "BASE.QWJ_R_NIQXWDSX", "VISION.KKJ_A_FQELHEJF", "BASE.OWN_R_RNFYEAIM"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJQHGLN", "label": "XXXJQHGLN", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJMSPMF", "label": "XXXJMSPMF", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.MTE_T_AOVNFUV", "label": "INTER.MTE_T_AOVNFUV", "shape": "dot", "title": ["BASE.ELE_R_VYYWFVMS", "BASE.ONV_R_JDNMOSCF", "BASE.OWN_R_RNFYEAIM", "VISION.DSE_A_GKDGBHBR", "BASE.ZNF_R_QZQTENZM", "BASE.QWJ_R_NIQXWDSX", "BASE.XZK_F_IHGDDHGG"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJLHDYP", "label": "XXXJLHDYP", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.SFS_T_NDPLFPY", "label": "INTER.SFS_T_NDPLFPY", "shape": "dot", "title": ["BASE.UOC_F_QMTYPUVF"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJTXHWT", "label": "XXXJTXHWT", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJICUMK", "label": "XXXJICUMK", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJAGDAA", "label": "XXXJAGDAA", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJCFMFW", "label": "XXXJCFMFW", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJJIFPH", "label": "XXXJJIFPH", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.TLI_T_SZNOYTS", "label": "INTER.TLI_T_SZNOYTS", "shape": "dot", "title": ["BASE.TWV_R_FKJIDEIR", "BASE.ELE_R_VYYWFVMS", "VISION.DSE_A_GKDGBHBR", "BASE.QWJ_R_NIQXWDSX", "BASE.ONV_R_JDNMOSCF", "BASE.ROS_R_QPMFUQVM", "BASE.PJO_R_EFKGXBCN"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJIATIW", "label": "XXXJIATIW", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJYXVXW", "label": "XXXJYXVXW", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJPUWOI", "label": "XXXJPUWOI", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJUTEWL", "label": "XXXJUTEWL", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJTSMVS", "label": "XXXJTSMVS", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.GVV_T_QCVGBRW", "label": "INTER.GVV_T_QCVGBRW", "shape": "dot", "title": ["BASE.USN_R_KRDRVOJK", "BASE.FFB_F_RQHDIGBN", "BASE.BBR_F_UUBFZAGG", "BASE.QWJ_R_NIQXWDSX", "BASE.ONV_R_JDNMOSCF"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJZKEID", "label": "XXXJZKEID", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.FYA_T_ITTRZUF", "label": "INTER.FYA_T_ITTRZUF", "shape": "dot", "title": ["BASE.BBR_F_UUBFZAGG", "BASE.FFB_F_RQHDIGBN", "BASE.FXY_F_QMJHIEML", "BASE.QWJ_R_NIQXWDSX", "BASE.ONV_R_JDNMOSCF"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJWERFV", "label": "XXXJWERFV", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.KUJ_T_SFPOKWN", "label": "INTER.KUJ_T_SFPOKWN", "shape": "dot", "title": ["BASE.ROS_R_QPMFUQVM", "BASE.ONV_R_JDNMOSCF", "VISION.EJH_A_PBTTHZET"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJMIISL", "label": "XXXJMIISL", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJPDABF", "label": "XXXJPDABF", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJQRWWW", "label": "XXXJQRWWW", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJWHBCJ", "label": "XXXJWHBCJ", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJMIVOJ", "label": "XXXJMIVOJ", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJEDAPG", "label": "XXXJEDAPG", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJPOCKR", "label": "XXXJPOCKR", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJMXBTL", "label": "XXXJMXBTL", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJIRNJW", "label": "XXXJIRNJW", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJRQRJX", "label": "XXXJRQRJX", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.DYR_T_RCNYAJQ", "label": "INTER.DYR_T_RCNYAJQ", "shape": "dot", "title": ["BASE.TWV_R_FKJIDEIR", "BASE.ZNF_R_QZQTENZM", "BASE.XZK_F_IHGDDHGG", "VISION.EJH_A_PBTTHZET"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJUWMPJ", "label": "XXXJUWMPJ", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJIRHJJ", "label": "XXXJIRHJJ", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJZPWDY", "label": "XXXJZPWDY", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJKFIJM", "label": "XXXJKFIJM", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJJNFVQ", "label": "XXXJJNFVQ", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJEYGAS", "label": "XXXJEYGAS", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJXQEPX", "label": "XXXJXQEPX", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJKAMYQ", "label": "XXXJKAMYQ", "shape": "dot", "title": ""}, {"color": "#FF0000", "font": {"color": "white"}, "id": "XXXJLUDRXD", "label": "XXXJLUDRXD", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJWFSFU", "label": "XXXJWFSFU", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.LVC_T_ZAXZOUT", "label": "INTER.LVC_T_ZAXZOUT", "shape": "dot", "title": ["BASE.QWJ_R_NIQXWDSX", "BASE.BBR_F_UUBFZAGG", "BASE.ROS_R_QPMFUQVM"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJENYYS", "label": "XXXJENYYS", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.GUV_T_VUXWKPR", "label": "INTER.GUV_T_VUXWKPR", "shape": "dot", "title": ["BASE.ELE_R_VYYWFVMS", "BASE.USN_R_KRDRVOJK", "BASE.FFB_F_RQHDIGBN", "BASE.ZNF_R_QZQTENZM", "BASE.ONV_R_JDNMOSCF"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJGSHNU", "label": "XXXJGSHNU", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.NCT_T_WGJQWXQ", "label": "INTER.NCT_T_WGJQWXQ", "shape": "dot", "title": ["BASE.UOC_F_QMTYPUVF", "BASE.USN_R_KRDRVOJK", "BASE.XZK_F_IHGDDHGG", "BASE.ONV_R_JDNMOSCF"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJTZGFZ", "label": "XXXJTZGFZ", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.HTB_T_TSIFPBT", "label": "INTER.HTB_T_TSIFPBT", "shape": "dot", "title": ["BASE.ELE_R_VYYWFVMS", "BASE.TWV_R_FKJIDEIR", "BASE.USN_R_KRDRVOJK", "BASE.FXY_F_QMJHIEML", "VISION.DSE_A_GKDGBHBR", "VISION.KKJ_A_FQELHEJF", "BASE.ONV_R_JDNMOSCF", "BASE.FFB_F_RQHDIGBN", "BASE.ROS_R_QPMFUQVM", "BASE.UOC_F_QMTYPUVF"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJLVIAE", "label": "XXXJLVIAE", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.YFY_T_ROBJFNW", "label": "INTER.YFY_T_ROBJFNW", "shape": "dot", "title": ["BASE.TWV_R_FKJIDEIR", "BASE.USN_R_KRDRVOJK", "BASE.ROS_R_QPMFUQVM", "BASE.UOC_F_QMTYPUVF", "BASE.PJO_R_EFKGXBCN"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJBUZWB", "label": "XXXJBUZWB", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.BZD_T_SNRPCDG", "label": "INTER.BZD_T_SNRPCDG", "shape": "dot", "title": ["BASE.QWJ_R_NIQXWDSX", "BASE.ZNF_R_QZQTENZM", "BASE.ONV_R_JDNMOSCF", "BASE.BBR_F_UUBFZAGG"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJJIQWJ", "label": "XXXJJIQWJ", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJDKSIH", "label": "XXXJDKSIH", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJYVFWO", "label": "XXXJYVFWO", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJTYFCM", "label": "XXXJTYFCM", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.YWN_T_IGYYNXD", "label": "INTER.YWN_T_IGYYNXD", "shape": "dot", "title": ["BASE.ROS_R_QPMFUQVM", "BASE.BBR_F_UUBFZAGG", "BASE.ONV_R_JDNMOSCF"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJUTFFV", "label": "XXXJUTFFV", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJMPHWO", "label": "XXXJMPHWO", "shape": "dot", "title": ""}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJLSJPC", "label": "XXXJLSJPC", "shape": "dot", "title": ""}, {"color": "#00FFFF", "font": {"color": "white"}, "id": "INTER.YWK_T_RZZWOMU", "label": "INTER.YWK_T_RZZWOMU", "shape": "dot", "title": ["BASE.TWV_R_FKJIDEIR", "BASE.USN_R_KRDRVOJK", "BASE.FXY_F_QMJHIEML", "VISION.EJH_A_PBTTHZET", "BASE.ONV_R_JDNMOSCF", "BASE.OWN_R_RNFYEAIM", "BASE.BBR_F_UUBFZAGG", "BASE.ROS_R_QPMFUQVM", "BASE.PJO_R_EFKGXBCN"]}, {"color": "#00FF00", "font": {"color": "white"}, "id": "XXXJMHQUC", "label": "XXXJMHQUC", "shape": "dot", "title": ""}]);
+                  edges = new vis.DataSet([{"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJYGYLBP", "to": "XXXJVQUYNB"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJYGYLBP", "to": "XXXJKTZUJA"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJYGYLBP", "to": "XXXJHEBIOV"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJYGYLBP", "to": "XXXJDGENJJ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJYGYLBP", "to": "XXXJSDVDD"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJYGYLBP", "to": "XXXJEPYWX"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJYGYLBP", "to": "XXXJTNCPH"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJYGYLBP", "to": "XXXJSLSPZ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZMANJY", "to": "XXXJYGYLBP"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZMANJY", "to": "XXXJZSCVBF"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZMANJY", "to": "XXXJFFYZO"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZMANJY", "to": "XXXJZMANJY"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZMANJY", "to": "INTER.SFK_T_AYVDYVC"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZMANJY", "to": "XXXJRHGKA"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZMANJY", "to": "XXXJMBSFG"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJNVSFXW", "to": "XXXJYGYLBP"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJNVSFXW", "to": "XXXJHBOCQC"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJNVSFXW", "to": "XXXJMYWBPH"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJNVSFXW", "to": "XXXJTFQHDL"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJNVSFXW", "to": "XXXJLSJPC"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJNVSFXW", "to": "XXXJNVSFXW"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJNVSFXW", "to": "XXXJMHQUC"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVYPKUA", "to": "XXXJYGYLBP"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVYPKUA", "to": "XXXJHBOCQC"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVYPKUA", "to": "XXXJTFQHDL"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVYPKUA", "to": "XXXJMYWBPH"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVYPKUA", "to": "XXXJUFGMD"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVYPKUA", "to": "XXXJVYPKUA"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVYPKUA", "to": "XXXJNUDRY"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVQUYNB", "to": "XXXJGSACLH"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVQUYNB", "to": "XXXJJIFPH"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVQUYNB", "to": "XXXJIATIW"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVQUYNB", "to": "XXXJYXVXW"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVQUYNB", "to": "XXXJPUWOI"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVQUYNB", "to": "XXXJUTEWL"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJKTZUJA", "to": "XXXJGSACLH"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJKTZUJA", "to": "XXXJMSPMF"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJKTZUJA", "to": "XXXJLHDYP"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJKTZUJA", "to": "XXXJTXHWT"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJKTZUJA", "to": "XXXJICUMK"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJKTZUJA", "to": "XXXJAGDAA"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJKTZUJA", "to": "XXXJCFMFW"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHEBIOV", "to": "XXXJGSACLH"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHEBIOV", "to": "XXXJRQRJX"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHEBIOV", "to": "XXXJUWMPJ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHEBIOV", "to": "XXXJIRHJJ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHEBIOV", "to": "XXXJZPWDY"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHEBIOV", "to": "XXXJKFIJM"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHEBIOV", "to": "XXXJJNFVQ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHEBIOV", "to": "XXXJEYGAS"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHEBIOV", "to": "XXXJXQEPX"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHEBIOV", "to": "XXXJKAMYQ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJDGENJJ", "to": "XXXJGSACLH"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJDGENJJ", "to": "XXXJDNKTJ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJDGENJJ", "to": "XXXJNUOQY"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJDGENJJ", "to": "XXXJLAGKW"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJDGENJJ", "to": "XXXJBKIWN"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJDGENJJ", "to": "XXXJRFFMF"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJDGENJJ", "to": "XXXJBDSVN"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJDGENJJ", "to": "XXXJUIBGC"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJDGENJJ", "to": "XXXJIOTUC"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJDGENJJ", "to": "XXXJCGFHZ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJDGENJJ", "to": "XXXJMOFUO"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJDGENJJ", "to": "XXXJPAGQX"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJDGENJJ", "to": "XXXJDSGCQ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJDGENJJ", "to": "XXXJOJHHL"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJDGENJJ", "to": "XXXJHKGDI"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJSDVDD", "to": "INTER.KLT_T_AQXNPUV"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJEPYWX", "to": "INTER.RHC_T_SKKFNYZ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJTNCPH", "to": "INTER.RSI_T_TZPNIWZ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVOCYGI", "to": "XXXJTFQHDL"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVOCYGI", "to": "XXXJRKIPAN"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVOCYGI", "to": "XXXJHWPKNB"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVOCYGI", "to": "XXXJYRHJI"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVOCYGI", "to": "XXXJTXHTT"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVOCYGI", "to": "XXXJSYEFB"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVOCYGI", "to": "XXXJCISGE"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJBOJLCT", "to": "XXXJVOCYGI"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJBOJLCT", "to": "XXXJWFSFU"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJBOJLCT", "to": "XXXJENYYS"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJBOJLCT", "to": "XXXJGSHNU"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJTFQHDL", "to": "XXXJZMANJY"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJTFQHDL", "to": "XXXJMYWBPH"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJTFQHDL", "to": "XXXJZSCVBF"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJTFQHDL", "to": "XXXJTZGFZ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJTFQHDL", "to": "XXXJLVIAE"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJTFQHDL", "to": "XXXJBUZWB"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJTFQHDL", "to": "XXXJJIQWJ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJTFQHDL", "to": "XXXJDKSIH"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJTFQHDL", "to": "XXXJYVFWO"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJRKIPAN", "to": "XXXJMYWBPH"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJRKIPAN", "to": "XXXJIRDTZ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJRKIPAN", "to": "XXXJRKIPAN"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJRKIPAN", "to": "INTER.QPD_T_VMVGKYG"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJRKIPAN", "to": "XXXJWYOXD"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHWPKNB", "to": "XXXJZAJAOE"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHWPKNB", "to": "XXXJMYWBPH"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHWPKNB", "to": "XXXJMMKRC"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHWPKNB", "to": "XXXJHWPKNB"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHWPKNB", "to": "XXXJPPRKG"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHWPKNB", "to": "XXXJCEQIN"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHWPKNB", "to": "XXXJOABQG"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJYRHJI", "to": "INTER.MBL_T_WUUTVEQ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJTXHTT", "to": "INTER.GVK_T_KLRRRQB"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZAJAOE", "to": "XXXJMYWBPH"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZAJAOE", "to": "XXXJJLVMH"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZAJAOE", "to": "XXXJLBPET"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZAJAOE", "to": "XXXJSVOXV"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZAJAOE", "to": "XXXJBIEMQ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJMYWBPH", "to": "XXXJQGQWS"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJMYWBPH", "to": "XXXJMYWBPH"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJMYWBPH", "to": "INTER.FSQ_T_ETPTVRN"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJMYWBPH", "to": "XXXJUCESC"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJMYWBPH", "to": "XXXJYUHFC"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJJLVMH", "to": "INTER.RDG_T_GTYDIIR"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJGSACLH", "to": "XXXJMYWBPH"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJGSACLH", "to": "XXXJVNGSW"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJGSACLH", "to": "XXXJNSERL"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJGSACLH", "to": "XXXJVAOGO"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJVNGSW", "to": "INTER.KCT_T_ZAFHSGG"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJIRDTZ", "to": "INTER.JMZ_T_HLVIKJV"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHBOCQC", "to": "XXXJTFQHDL"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHBOCQC", "to": "XXXJMYWBPH"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHBOCQC", "to": "XXXJOTBSZ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHBOCQC", "to": "XXXJHBOCQC"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJHBOCQC", "to": "XXXJFRHOP"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJOTBSZ", "to": "INTER.GIN_T_HZFLBBC"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZSCVBF", "to": "XXXJVYPKUA"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZSCVBF", "to": "XXXJHWPKNB"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZSCVBF", "to": "XXXJALBXWD"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZSCVBF", "to": "XXXJNVSFXW"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZSCVBF", "to": "XXXJTSMVS"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZSCVBF", "to": "XXXJZKEID"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZSCVBF", "to": "XXXJWERFV"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZSCVBF", "to": "XXXJMIISL"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZSCVBF", "to": "XXXJPDABF"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZSCVBF", "to": "XXXJQRWWW"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZSCVBF", "to": "XXXJWHBCJ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZSCVBF", "to": "XXXJMIVOJ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZSCVBF", "to": "XXXJEDAPG"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZSCVBF", "to": "XXXJPOCKR"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZSCVBF", "to": "XXXJMXBTL"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZSCVBF", "to": "XXXJIRNJW"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJFFYZO", "to": "INTER.ZJT_T_VSMFOIT"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJUFGMD", "to": "INTER.AEE_T_HTRZDSL"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJQGQWS", "to": "INTER.TCR_T_KHMTLHD"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJUCESC", "to": "INTER.UEE_T_ETGRAPH"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJDNKTJ", "to": "INTER.SLV_T_HFMQWPH"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJMMKRC", "to": "INTER.RCZ_T_HWETBMM"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJALBXWD", "to": "XXXJFEGAW"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJALBXWD", "to": "XXXJKJEGZ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJALBXWD", "to": "XXXJYFIBY"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJALBXWD", "to": "XXXJQHGLN"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJFEGAW", "to": "INTER.SLZ_T_XZCQYZF"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJKJEGZ", "to": "INTER.QXG_T_AOWBYUW"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJYFIBY", "to": "INTER.ORE_T_QOHBWDZ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJMSPMF", "to": "INTER.MTE_T_AOVNFUV"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJLHDYP", "to": "INTER.SFS_T_NDPLFPY"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJJIFPH", "to": "INTER.TLI_T_SZNOYTS"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJTSMVS", "to": "INTER.GVV_T_QCVGBRW"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJZKEID", "to": "INTER.FYA_T_ITTRZUF"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJWERFV", "to": "INTER.KUJ_T_SFPOKWN"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJRQRJX", "to": "INTER.DYR_T_RCNYAJQ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJLUDRXD", "to": "XXXJBOJLCT"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJLUDRXD", "to": "XXXJTYFCM"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJLUDRXD", "to": "XXXJUTFFV"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJLUDRXD", "to": "XXXJMPHWO"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJWFSFU", "to": "INTER.LVC_T_ZAXZOUT"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJENYYS", "to": "INTER.GUV_T_VUXWKPR"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJGSHNU", "to": "INTER.NCT_T_WGJQWXQ"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJTZGFZ", "to": "INTER.HTB_T_TSIFPBT"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJLVIAE", "to": "INTER.YFY_T_ROBJFNW"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJBUZWB", "to": "INTER.BZD_T_SNRPCDG"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJTYFCM", "to": "INTER.YWN_T_IGYYNXD"}, {"arrowStrikethrough": false, "arrows": "to", "color": "#87CEFA", "from": "XXXJLSJPC", "to": "INTER.YWK_T_RZZWOMU"}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": true,
+        "filter": [
+            "physics"
+        ]
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+                  // if this network requires displaying the configure window,
+                  // put it in its div
+                  options.configure["container"] = document.getElementById("config");
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+                    network.on("selectNode", neighbourhoodHighlight);
+                  
+
+                  
+
+
+                  
+                      network.on("stabilizationProgress", function(params) {
+                          document.getElementById('loadingBar').removeAttribute("style");
+                          var maxWidth = 496;
+                          var minWidth = 20;
+                          var widthFactor = params.iterations/params.total;
+                          var width = Math.max(minWidth,maxWidth * widthFactor);
+                          document.getElementById('bar').style.width = width + 'px';
+                          document.getElementById('text').innerHTML = Math.round(widthFactor*100) + '%';
+                      });
+                      network.once("stabilizationIterationsDone", function() {
+                          document.getElementById('text').innerHTML = '100%';
+                          document.getElementById('bar').style.width = '496px';
+                          document.getElementById('loadingBar').style.opacity = 0;
+                          // really clean the dom element
+                          setTimeout(function () {document.getElementById('loadingBar').style.display = 'none';}, 500);
+                      });
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
