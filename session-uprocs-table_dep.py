@@ -3510,5 +3510,13 @@ def plot_network_graph():
     # Load HTML file in HTML component for display on Streamlit page
     st.components.html(HtmlFile.read(), height=435)
 
+def main():
+    st.title("Network Graph Visualization with Streamlit")
+    plot_network_graph()
+
+if __name__ == "__main__":
+    main()
+
+
 
 
