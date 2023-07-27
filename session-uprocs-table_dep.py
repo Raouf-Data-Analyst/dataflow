@@ -1790,11 +1790,13 @@ def plot_network_graph():
     html_file = "network_diagram.html"
     nt.save_graph(html_file)
 
+    # Save the Pyvis Network as an HTML file
+    html_file = "network_diagram.html"
+    nt.show(html_file)
+
     # Display the interactive network diagram in the Streamlit app using IFrame
     st.title("Interactive Network Diagram")
-    with open(html_file, "r") as f:
-        html_content = f.read()
-        st.components.v1.html(html_content, height=800)
+    st.components.v1.iframe(html_file, height=800)
     
 def main():
     st.title("Network Graph Visualization")
