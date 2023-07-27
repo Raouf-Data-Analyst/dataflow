@@ -3415,9 +3415,8 @@ import networkx as nx
 from pyvis.network import Network
 import streamlit as st
 import pydeck as pdk
+import streamlit.components.v1 as components
 
-
-# In[3]:
 
 # # Load JSON data
 json_data = json.loads(data)
@@ -3508,10 +3507,10 @@ def plot_network_graph():
         HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
 
     # Load HTML file in HTML component for display on Streamlit page
-    st.components.html(HtmlFile.read(), height=435)
+    st.components.v1.html(html_content, height=435)
 
 def main():
-    st.title("Network Graph Visualization with Streamlit")
+    st.title("Data Flow Graph Visualization")
     plot_network_graph()
 
 if __name__ == "__main__":
