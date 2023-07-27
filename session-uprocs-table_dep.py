@@ -3494,27 +3494,17 @@ def plot_network_graph():
         source, target = edge
         nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
 
-    # Save and read graph as HTML file (on Streamlit Sharing)
-    try:
-        path = '/tmp'
-        nt.save_graph(f'{path}/test.html')
-        HtmlFile = open(f'{path}/pyvis_graph.html', 'r', encoding='utf-8')
-
-    # Save and read graph as HTML file (locally)
-    except:
-        path = '/html_files'
-        nt.save_graph(f'{path}/test.html')
-        HtmlFile = open(f'{path}/test.html', 'r', encoding='utf-8')
-
-    # Load HTML file in HTML component for display on Streamlit page
-    st.components.v1.html(HtmlFile, height=435)
-
+    
+    p = open("/html_files/pyvis_graph.html")
+    components.html(p.read())
+    
 def main():
-    st.title("Data Flow Graph Visualization")
+    st.title("Data flow Graph Visualization ")
     plot_network_graph()
 
 if __name__ == "__main__":
     main()
+
 
 
 
