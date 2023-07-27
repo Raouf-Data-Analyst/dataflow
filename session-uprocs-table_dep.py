@@ -3413,13 +3413,11 @@ data = """
 import json
 import networkx as nx
 from pyvis.network import Network
-from IPython.display import IFrame
 import streamlit as st
 import pydeck as pdk
 
 
 # In[3]:
-
 
 # # Load JSON data
 json_data = json.loads(data)
@@ -3467,7 +3465,7 @@ def plot_network_graph():
     G.add_edges_from(edges)
 
     # Plot the interactived diagram using pyvis
-    nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook= False)  
+    nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook=True,cdn_resources='remote', select_menu = True)  
 
     # Define colors for uprocs, input/output nodes, and nodes with table_deps
     uprocs_color = "#FF0000"  # Red for uprocs
@@ -3496,23 +3494,25 @@ def plot_network_graph():
     for edge in G.edges:
         source, target = edge
         nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
-        
 
-    # Save the Pyvis Network as an HTML file
-    html_file = "network_diagram.html"
-    nt.show(html_file)
+    nt.show_buttons(filter_=['physics'])
+    # Save the visualization as an HTML file
+    nt.save_graph("data_flow_diagram.html")
+
+    # Display the visualization in the Jupyter Notebook
+    nt.show("data_flow_diagram.html")
     
-    # Display the interactive network diagram in the Streamlit app using IFrame
-    st.title("Interactive Network Diagram")
-    st.components.v1.iframe(html_file, height=800)
-
-
+    # Display the interactive data flow diagram in the Streamlit app using st.pydeck_chart()
+    st.title("Data Flow Diagram")
+    st.pydeck_chart(nt)
+    
+    
 def main():
-    st.title("Network Graph Visualization")
+    st.title("Network Graph Visualization with Streamlit")
+    st.write("Here's a simple network graph plotted using NetworkX and displayed with Streamlit.")
     plot_network_graph()
 
 if __name__ == "__main__":
     main()
-
 
 
