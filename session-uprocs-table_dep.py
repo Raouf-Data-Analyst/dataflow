@@ -1786,7 +1786,7 @@ def plot_network_graph():
         nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
 
     # Save the visualization as an HTML file
-    nt.to_html("data_flow_diagram.html", open_browser=True, notebook_display=False)
+    nt.save_graph("data_flow_diagram.html")
     # Display the interactive data flow diagram in the Streamlit app using st.pydeck_chart()
     st.title("Data Flow Diagram")
     st.pydeck_chart(nt)
