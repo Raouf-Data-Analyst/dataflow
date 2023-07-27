@@ -1787,7 +1787,7 @@ def plot_network_graph():
 
 
     # Get the HTML content for the interactive network diagram
-    html_content = nt.get_iframe()
+    html_content = f.read()
 
     # Display the interactive network diagram in the Streamlit app using st.components.v1.html
     st.title("Interactive Network Diagram")
