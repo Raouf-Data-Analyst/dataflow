@@ -1784,14 +1784,15 @@ def plot_network_graph():
     for edge in G.edges:
         source, target = edge
         nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
-
-
-    # Get the HTML content for the interactive network diagram
-    html_content = f.read()
+        
+       
+    # Save the Pyvis Network as an HTML file
+    html_file = nt.save_graph("data_flow_diagram.html") 
 
     # Display the interactive network diagram in the Streamlit app using st.components.v1.html
-    st.title("Interactive Network Diagram")
-    st.components.v1.html(html_content, height=800)
+    with open(html_file, "r") as f:
+        html_content = f.read()
+        st.components.v1.html(html_content, height=800)
     
 def main():
     st.title("Network Graph Visualization")
