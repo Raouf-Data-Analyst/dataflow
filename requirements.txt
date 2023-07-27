@@ -3,5 +3,3 @@ matplotlib
 pandas
 streamlit
 Network
-IFrame
-
