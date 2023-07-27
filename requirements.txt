@@ -1,7 +1,5 @@
 numpy
 matplotlib
-ipython>=8.14.0
-get_ipython
 pandas
 streamlit
 Network
