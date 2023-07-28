@@ -3467,7 +3467,8 @@ def plot_network_graph():
 
     # Plot the interactived diagram using pyvis
     nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook=True,cdn_resources='remote', select_menu = True)  
-
+    nt.show_buttons(filter_=['physics'])
+    
     # Define colors for uprocs, input/output nodes, and nodes with table_deps
     uprocs_color = "#FF0000"  # Red for uprocs
     input_output_color = "#00FF00"  # Green  for input/output nodes
@@ -3497,7 +3498,7 @@ def plot_network_graph():
         nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
 
     # generate the graph
-    nt.show_buttons(filter_=['physics'])
+ 
     nt.save_graph(f'data_flow_graph.html')
     st.header('Depandance entre sessions-uprocs-table_deps')
     HtmlFile = open(f'data_flow_graph.html','r',encoding='utf-8')
