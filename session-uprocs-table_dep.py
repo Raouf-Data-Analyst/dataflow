@@ -3416,6 +3416,7 @@ from pyvis.network import Network
 import streamlit as st
 import pydeck as pdk
 import streamlit.components.v1 as components
+import graphviz
 
 
 # # Load JSON data
@@ -3495,11 +3496,11 @@ def plot_network_graph():
         nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
 
     # Affichez le graphe dans Streamlit
-    st.write(nt)
+    st.graphviz_chart(nt)
 
 # Appellez la fonction pour visualiser le graphe lorsque l'application Streamlit est exécutée
 if __name__ == "__main__":
-    st.title("Visualisation du graphe du réseau")
+    st.title("Data flow graph")
     plot_network_graph()
 
 
