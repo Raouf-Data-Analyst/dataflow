@@ -3509,6 +3509,8 @@ def plot_network_graph():
 # Appellez la fonction pour visualiser le graphe lorsque l'application Streamlit est exécutée
 if __name__ == "__main__":
     st.title("Orange Kenobi")
+    # uploading and cleaning data file
+    uploaded_file = st.file_uploader("Choose your json file")
     plot_network_graph()
 
 
