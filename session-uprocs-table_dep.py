@@ -3497,6 +3497,7 @@ def plot_network_graph():
         nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
 
     # generate the graph
+    nt.from_nx(G)
     nt.save_graph(f'data_flow_graph.html')
     st.header('depandance entre sessions-uprocs-table_deps')
     HtmlFile = open(f'data_flow_graph.html','r',encoding='utf-8')
