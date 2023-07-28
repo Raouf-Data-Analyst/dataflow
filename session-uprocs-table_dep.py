@@ -3494,17 +3494,13 @@ def plot_network_graph():
         source, target = edge
         nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
 
-    
-    p = open("/html_files/pyvis_graph.html")
-    components.html(p.read())
-    
-def main():
-    st.title("Data flow Graph Visualization ")
-    plot_network_graph()
+    # Affichez le graphe dans Streamlit
+    st_pyvis(nt)
 
+# Appellez la fonction pour visualiser le graphe lorsque l'application Streamlit est exécutée
 if __name__ == "__main__":
-    main()
-
+    st.title("Visualisation du graphe du réseau")
+    plot_network_graph()
 
 
 
