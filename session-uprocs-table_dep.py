@@ -9,7 +9,7 @@ import graphviz
 # uploading and cleaning data file
 uploaded_file = st.file_uploader("Choose your json file")
 if uploaded_file is not None:
-    json_data = json.loads(uploaded_file )
+    json_data = json.dumps(uploaded_file )
 else:
     st.warning('Please upload a LinkedIn connections.csv file to begin.')
     st.stop()
