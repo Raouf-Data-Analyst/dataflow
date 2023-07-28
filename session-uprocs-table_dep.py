@@ -3412,7 +3412,7 @@ data = """
 
 import json
 import networkx as nx
-from pyvis.network import Network
+from pyvis.network import Networkas as net
 import streamlit as st
 import pydeck as pdk
 import streamlit.components.v1 as components
@@ -3466,7 +3466,7 @@ def plot_network_graph():
     G.add_edges_from(edges)
 
     # Plot the interactived diagram using pyvis
-    nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook=False, select_menu = True)  
+    nt = net.Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook=False, select_menu = True)  
 
     # Define colors for uprocs, input/output nodes, and nodes with table_deps
     uprocs_color = "#FF0000"  # Red for uprocs
