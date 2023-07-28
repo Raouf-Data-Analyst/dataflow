@@ -3495,8 +3495,14 @@ def plot_network_graph():
         source, target = edge
         nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
 
-    # Affichez le graphe dans Streamlit
-    st.graphviz_chart(nt)
+    # generate the graph
+    nt.from_nx(G)
+    nt.save_graph(f'company_graph.html')
+    st.header('Connections by Company Graph')
+    HtmlFile = open(f'company_graph.html','r',encoding='utf-8')
+
+    # Load HTML into HTML component for display on Streamlit
+    components.html(HtmlFile.read(), height=800, width=800)
 
 # Appellez la fonction pour visualiser le graphe lorsque l'application Streamlit est exécutée
 if __name__ == "__main__":
