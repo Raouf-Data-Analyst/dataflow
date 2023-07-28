@@ -8,8 +8,8 @@ import graphviz
 
 # File uploader
 uploaded_file = st.sidebar.file_uploader("Upload JSON data", type=["json"])
+
 if uploaded_file is not None:
-    # Read the content of the uploaded file as a JSON-formatted string
     data = uploaded_file.getvalue().decode("utf-8")
     json_data = json.loads(data)
 
