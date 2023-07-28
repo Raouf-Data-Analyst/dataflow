@@ -7,9 +7,9 @@ import streamlit.components.v1 as components
 import graphviz
 
 # uploading and cleaning data file
-data = st.file_uploader("Choose your json file")
+uploaded_file = st.file_uploader("Choose your json file")
 if uploaded_file is not None:
-    json_data = json.loads(data)
+    json_data = json.loads(uploaded_file )
 else:
     st.warning('Please upload a LinkedIn connections.csv file to begin.')
     st.stop()
