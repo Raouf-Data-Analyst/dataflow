@@ -6,13 +6,12 @@ import pydeck as pdk
 import streamlit.components.v1 as components
 import graphviz
 
-# uploading and cleaning data file
-uploaded_file = st.sidebar.file_uploader("Upload your json", type=["json"])
+# File uploader
+uploaded_file = st.sidebar.file_uploader("Upload JSON data", type=["json"])
 if uploaded_file is not None:
-    json_data = json.dumps(uploaded_file )
-else:
-    st.warning('Please upload a LinkedIn connections.csv file to begin.')
-    st.stop()
+    # Read the content of the uploaded file as a JSON-formatted string
+    data = uploaded_file.getvalue().decode("utf-8")
+    json_data = json.loads(data)
 
 # Extract nodes and edges
 nodes = []
