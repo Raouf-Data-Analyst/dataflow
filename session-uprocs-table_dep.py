@@ -3459,13 +3459,14 @@ def plot_network_graph():
 
     # Create a graph
     G = nx.DiGraph()
+    
 
     # Add nodes and edges to the graph
     G.add_nodes_from(node_data["id"] for node_data in nodes)
     G.add_edges_from(edges)
 
     # Plot the interactived diagram using pyvis
-    nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook=True,cdn_resources='remote', select_menu = True)  
+    nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook=False, select_menu = True)  
 
     # Define colors for uprocs, input/output nodes, and nodes with table_deps
     uprocs_color = "#FF0000"  # Red for uprocs
@@ -3496,17 +3497,16 @@ def plot_network_graph():
         nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
 
     # generate the graph
-    nt.from_nx(G)
-    nt.save_graph(f'company_graph.html')
-    st.header('Connections by Company Graph')
-    HtmlFile = open(f'company_graph.html','r',encoding='utf-8')
+    nt.save_graph(f'data_flow_graph.html')
+    st.header('depandance entre sessions-uprocs-table_deps')
+    HtmlFile = open(f'data_flow_graph.html','r',encoding='utf-8')
 
     # Load HTML into HTML component for display on Streamlit
     components.html(HtmlFile.read(), height=800, width=800)
 
 # Appellez la fonction pour visualiser le graphe lorsque l'application Streamlit est exécutée
 if __name__ == "__main__":
-    st.title("Data flow graph")
+    st.title("Orange Kenobi")
     plot_network_graph()
 
 
