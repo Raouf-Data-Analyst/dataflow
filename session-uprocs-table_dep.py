@@ -3412,7 +3412,7 @@ data = """
 
 import json
 import networkx as nx
-from pyvis.network import Networkas as net
+from pyvis.network import Network 
 import streamlit as st
 import pydeck as pdk
 import streamlit.components.v1 as components
