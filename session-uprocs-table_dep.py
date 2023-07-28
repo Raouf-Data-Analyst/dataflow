@@ -12,7 +12,9 @@ uploaded_file = st.sidebar.file_uploader("Upload JSON data", type=["json"])
 if uploaded_file is not None:
     data = uploaded_file.getvalue().decode("utf-8")
     json_data = json.loads(data)
-
+else:
+    st.warning('Please upload your Json file.')
+    st.stop()
 # Extract nodes and edges
 nodes = []
 edges = []
