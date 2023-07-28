@@ -7,7 +7,7 @@ import streamlit.components.v1 as components
 import graphviz
 
 # uploading and cleaning data file
-uploaded_file = st.file_uploader("Choose your json file")
+uploaded_file = st.sidebar.file_uploader("Upload your json", type=["json"])
 if uploaded_file is not None:
     json_data = json.dumps(uploaded_file )
 else:
