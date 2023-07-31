@@ -58,7 +58,6 @@ def plot_network_graph():
     # Create a graph
     G = nx.DiGraph()
     
-
     # Add nodes and edges to the graph
     G.add_nodes_from(node_data["id"] for node_data in nodes)
     G.add_edges_from(edges)
@@ -66,11 +65,11 @@ def plot_network_graph():
     # Plot the interactived diagram using pyvis
     nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook=True, cdn_resources='remote', select_menu = True)  
     nt.show_buttons(filter_=['physics'])
-    
+
     # Define colors for uprocs, input/output nodes, and nodes with table_deps
     uprocs_color = "#FF0000"  # Red for uprocs
-    input_output_color = "#00FF00"  # Green  for input/output nodes
-    table_deps_color = "#00FFFF"  # Cyan  for nodes with table_deps
+    input_output_color = "#00FF00"  # Green for input/output nodes
+    table_deps_color = "#00FFFF"  # Cyan for nodes with table_deps
 
     # Create clusters and add nodes to clusters
     session_clusters = {}
@@ -99,15 +98,8 @@ def plot_network_graph():
         if node_id in session_clusters:
             cluster_title = session_clusters[node_id]
             nt.add_node(node_id, **node_attributes)
-            nt.add_edge(cluster_title, node_id, arrows='to', arrowStrikethrough=False, color="#87CEFA")
-        else:
-            nt.add_node(node_id, **node_attributes)
-
-    # Add edges with arrows for dependencies between clusters
-    for edge in G.edges:
-        source, target = edge
-        if source in sessions and target in sessions:
-            nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
+            if node_id != cluster_title:
+                nt.add_edge(cluster_title, node_id, arrows='to', arrowStrikethrough=False, color="#87CEFA")
 
 
     # generate the graph
