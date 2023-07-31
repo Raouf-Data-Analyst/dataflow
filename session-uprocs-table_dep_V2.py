@@ -36,12 +36,12 @@ def plot_network_graph():
                 nodes.append({"id": table_dep, "title": table_dep_content, "color": "#00FFFF"}) 
             edges.append((uprocs_name, table_dep))
 
-    # Identify sessions and their nodes
-    sessions = json_data.keys()
-    session_nodes = {session: [] for session in sessions}
+    # Identify sessions
+    sessions = set()
 
     # Process each process (uprocs) in the JSON data
     for process_name, process_info in json_data.items():
+        sessions.add(process_name)
         nodes.append({"id": process_name, "title": "", "color": ""})
         inputs = process_info.get("inputs", [])
         outputs = process_info.get("outputs", [])
@@ -50,37 +50,58 @@ def plot_network_graph():
         for uprocs_info in process_info.get("uprocs", []):
             uprocs_name = uprocs_info.get("name")
             uprocs_label = uprocs_info.get("label")
+            sessions.add(uprocs_name)
             nodes.append({"id": uprocs_name, "title": "", "color": ""})
             edges.append((process_name, uprocs_name))
             add_table_deps_nodes(uprocs_name, uprocs_info.get("table_deps", {}))
 
-        # Store uprocs nodes in respective sessions
-        session_nodes[process_name].append(uprocs_name)
-
     # Create a graph
     G = nx.DiGraph()
+    
 
     # Add nodes and edges to the graph
     G.add_nodes_from(node_data["id"] for node_data in nodes)
     G.add_edges_from(edges)
 
     # Plot the interactived diagram using pyvis
-    nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook=True, cdn_resources='remote', select_menu=True)
+    nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook=True, cdn_resources='remote', select_menu = True)  
     nt.show_buttons(filter_=['physics'])
-
+    
     # Define colors for uprocs, input/output nodes, and nodes with table_deps
     uprocs_color = "#FF0000"  # Red for uprocs
-    input_output_color = "#00FF00"  # Green for input/output nodes
-    table_deps_color = "#00FFFF"  # Cyan for nodes with table_deps
+    input_output_color = "#00FF00"  # Green  for input/output nodes
+    table_deps_color = "#00FFFF"  # Cyan  for nodes with table_deps
 
     # Create clusters and add nodes to clusters
-    for session, nodes_in_session in session_nodes.items():
+    session_clusters = {}
+    for session in sessions:
         cluster_title = f"Session: {session}"
+        session_clusters[session] = cluster_title
         nt.add_node(cluster_title, shape="box", color="#FFD700")  # Yellow box shape for clusters
-        for node in nodes_in_session:
-            node_attributes = {"title": "", "color": uprocs_color}
-            nt.add_node(node, **node_attributes)
-            nt.add_edge(cluster_title, node, arrows='to', arrowStrikethrough=False, color="#87CEFA")
+
+    # Add nodes with attributes to the graph
+    for node_data in nodes:
+        node_attributes = {}  # You can modify this to include additional attributes if needed
+        node_id = node_data["id"]
+        node_attributes["title"] = node_data["title"]  # Use 'title' to set the tooltip text
+
+        # Check if the node is an "uprocs" or an input/output node and update the color accordingly
+        if node_id in json_data:
+            node_attributes["color"] = uprocs_color
+        else:
+            node_attributes["color"] = input_output_color
+
+        # Check if the node has "table_deps" and update the color accordingly
+        if node_id in [table_dep["id"] for table_dep in nodes if table_dep["color"] == table_deps_color]:
+            node_attributes["color"] = table_deps_color
+
+        # Assign the node to the corresponding cluster
+        if node_id in session_clusters:
+            cluster_title = session_clusters[node_id]
+            nt.add_node(node_id, **node_attributes)
+            nt.add_edge(cluster_title, node_id, arrows='to', arrowStrikethrough=False, color="#87CEFA")
+        else:
+            nt.add_node(node_id, **node_attributes)
 
     # Add edges with arrows for dependencies between clusters
     for edge in G.edges:
@@ -92,6 +113,7 @@ def plot_network_graph():
     for node_data in nodes:
         node_id = node_data["id"]
         nt.nodes[node_id]["title"] = f"{node_id}\n{node_data['title']}"
+
 
     # generate the graph
  
