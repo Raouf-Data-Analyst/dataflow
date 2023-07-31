@@ -52,11 +52,13 @@ def plot_network_graph():
             edges.append((process_name, uprocs_name))
             add_table_deps_nodes(uprocs_name, uprocs_info.get("table_deps", {}))
 
- # Create a graph using graphviz.Source
-    g = graphviz.Source('digraph G {}', filename='cluster_edge.gv', format='png', engine='dot')
+    # Create a graph using graphviz.Digraph
+    g = graphviz.Digraph('G', filename='cluster_edge.gv', format='png', engine='dot')
     g.attr(compound='true')
+
     # Create clusters for sessions and add nodes to clusters
     with g.subgraph(name='cluster0') as c:
+        c.attr(label='Sessions', color='blue', style='filled')
         for session in sessions:
             c.node(session, shape="box")
 
