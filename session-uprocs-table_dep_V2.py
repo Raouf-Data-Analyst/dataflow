@@ -83,7 +83,7 @@ def plot_network_graph():
     # Check if the node has "table_deps" and update the color accordingly
         if node_id in [table_dep["id"] for table_dep in nodes if table_dep["color"] == table_deps_color]:
             node_attributes["color"] = table_deps_color
-            nt.add_node(node_id, **node_attributes, shape='box', label = 'id')
+        nt.add_node(node_id, **node_attributes)
 
 
 
