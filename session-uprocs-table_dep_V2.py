@@ -89,7 +89,7 @@ def plot_network_graph():
     # Set the title to be displayed inside the node
     node_attributes["title"] = f"{node_id}\n{node_data['title']}"  # Combine name and title
     
-        nt.add_node(node_id, **node_attributes)
+    nt.add_node(node_id, **node_attributes)
 
 
 
