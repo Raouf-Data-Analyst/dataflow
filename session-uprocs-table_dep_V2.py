@@ -56,66 +56,28 @@ def plot_network_graph():
             add_table_deps_nodes(uprocs_name, uprocs_info.get("table_deps", {}))
 
     # Create a graph
-    G = nx.DiGraph()
-    
-    # Add nodes and edges to the graph
-    G.add_nodes_from(node_data["id"] for node_data in nodes)
-    G.add_edges_from(edges)
-
-    # Plot the interactived diagram using pyvis
-    nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook=True, cdn_resources='remote', select_menu = True)  
-    nt.show_buttons(filter_=['physics'])
-
-    # Define colors for uprocs, input/output nodes, and nodes with table_deps
-    uprocs_color = "#FF0000"  # Red for uprocs
-    input_output_color = "#00FF00"  # Green for input/output nodes
-    table_deps_color = "#00FFFF"  # Cyan for nodes with table_deps
+    g = graphviz.Digraph('G', filename='cluster_edge.gv')
+    g.attr(compound='true')
 
     # Create clusters for sessions and add nodes to clusters
-    session_clusters = {}
-    for session in sessions:
-        cluster_title = f"Session: {session}"
-        session_clusters[session] = cluster_title
-        nt.add_node(cluster_title, shape="box", color="#FFD700")  # Yellow box shape for clusters
-        nt.add_edge(session, cluster_title, arrows='to', arrowStrikethrough=False, color="#87CEFA")
+    with g.subgraph(name='cluster0') as c:
+        for session in sessions:
+            c.node(session, shape="box")
 
     # Add nodes with attributes to the graph
     for node_data in nodes:
-        node_attributes = {}  # You can modify this to include additional attributes if needed
         node_id = node_data["id"]
-        node_attributes["title"] = node_data["title"]  # Use 'title' to set the tooltip text
+        g.node(node_id, label=node_id)
 
-        # Check if the node is an "uprocs" or an input/output node and update the color accordingly
-        if node_id in json_data:
-            node_attributes["color"] = uprocs_color
-        else:
-            node_attributes["color"] = input_output_color
-
-        # Check if the node has "table_deps" and update the color accordingly
-        if node_id in [table_dep["id"] for table_dep in nodes if table_dep["color"] == table_deps_color]:
-            node_attributes["color"] = table_deps_color
-
-        # Assign the node to the corresponding cluster
-        if node_id in session_clusters:
-            cluster_title = session_clusters[node_id]
-            nt.add_node(node_id, **node_attributes)
-        else:
-            nt.add_node(node_id, **node_attributes)
-
-    # Add edges with arrows for connections between uprocs in different session clusters
-    for edge in G.edges:
+    # Add edges with connections between uprocs in different session clusters
+    for edge in edges:
         source, target = edge
         if source in uprocs and target in uprocs and source != target:
-            nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
-
-    # Set node titles (node_data["title"]) to be displayed inside the nodes
-    for node_data in nodes:
-        node_id = node_data["id"]
-        nt.nodes[node_id]["title"] = f"{node_id}\n{node_data['title']}"
+            g.edge(source, target)
 
     # generate the graph
  
-    nt.save_graph(f'data_flow_graph.html')
+    g.save_graph(f'data_flow_graph.html')
     st.header('Dépendance entre sessions-uprocs-table_deps')
     HtmlFile = open(f'data_flow_graph.html','r',encoding='utf-8')
 
