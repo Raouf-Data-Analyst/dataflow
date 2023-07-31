@@ -52,10 +52,9 @@ def plot_network_graph():
             edges.append((process_name, uprocs_name))
             add_table_deps_nodes(uprocs_name, uprocs_info.get("table_deps", {}))
 
-    # Create a graph
-    g = graphviz.Digraph('G', filename='cluster_edge.gv', format='png', engine='dot', executable=r"C:\Users\alarouci\Graphviz\bin\dot.exe") 
+ # Create a graph using graphviz.Source
+    g = graphviz.Source('digraph G {}', filename='cluster_edge.gv', format='png', engine='dot')
     g.attr(compound='true')
-
     # Create clusters for sessions and add nodes to clusters
     with g.subgraph(name='cluster0') as c:
         for session in sessions:
