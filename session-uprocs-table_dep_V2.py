@@ -19,7 +19,7 @@ else:
 nodes = []
 edges = []
 
-def plot_network_graph():
+ef plot_network_graph():
     # Function to add nodes and edges for inputs and outputs
     def add_input_output_nodes(process_name, inputs, outputs):
         for inp in inputs:
@@ -36,8 +36,9 @@ def plot_network_graph():
                 nodes.append({"id": table_dep, "title": table_dep_content, "color": "#00FFFF"}) 
             edges.append((uprocs_name, table_dep))
 
-    # Identify sessions
+    # Identify sessions and uprocs
     sessions = set()
+    uprocs = set()
 
     # Process each process (uprocs) in the JSON data
     for process_name, process_info in json_data.items():
@@ -49,8 +50,7 @@ def plot_network_graph():
 
         for uprocs_info in process_info.get("uprocs", []):
             uprocs_name = uprocs_info.get("name")
-            uprocs_label = uprocs_info.get("label")
-            sessions.add(uprocs_name)
+            uprocs.add(uprocs_name)
             nodes.append({"id": uprocs_name, "title": "", "color": ""})
             edges.append((process_name, uprocs_name))
             add_table_deps_nodes(uprocs_name, uprocs_info.get("table_deps", {}))
@@ -71,12 +71,13 @@ def plot_network_graph():
     input_output_color = "#00FF00"  # Green for input/output nodes
     table_deps_color = "#00FFFF"  # Cyan for nodes with table_deps
 
-    # Create clusters and add nodes to clusters
+    # Create clusters for sessions and add nodes to clusters
     session_clusters = {}
     for session in sessions:
         cluster_title = f"Session: {session}"
         session_clusters[session] = cluster_title
         nt.add_node(cluster_title, shape="box", color="#FFD700")  # Yellow box shape for clusters
+        nt.add_edge(session, cluster_title, arrows='to', arrowStrikethrough=False, color="#87CEFA")
 
     # Add nodes with attributes to the graph
     for node_data in nodes:
@@ -98,9 +99,19 @@ def plot_network_graph():
         if node_id in session_clusters:
             cluster_title = session_clusters[node_id]
             nt.add_node(node_id, **node_attributes)
-            if node_id != cluster_title:
-                nt.add_edge(cluster_title, node_id, arrows='to', arrowStrikethrough=False, color="#87CEFA")
+        else:
+            nt.add_node(node_id, **node_attributes)
 
+    # Add edges with arrows for connections between uprocs in different session clusters
+    for edge in G.edges:
+        source, target = edge
+        if source in uprocs and target in uprocs and source != target:
+            nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
+
+    # Set node titles (node_data["title"]) to be displayed inside the nodes
+    for node_data in nodes:
+        node_id = node_data["id"]
+        nt.nodes[node_id]["title"] = f"{node_id}\n{node_data['title']}"
 
     # generate the graph
  
