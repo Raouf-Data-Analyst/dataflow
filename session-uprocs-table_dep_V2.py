@@ -1,10 +1,6 @@
 import json
-import networkx as nx
-from pyvis.network import Network 
-import streamlit as st
-import pydeck as pdk
-import streamlit.components.v1 as components
 import graphviz
+import streamlit as st
 
 # File uploader
 uploaded_file = st.sidebar.file_uploader("Upload JSON data", type=["json"])
@@ -15,6 +11,7 @@ if uploaded_file is not None:
 else:
     st.warning('Please upload your Json file.')
     st.stop()
+
 # Extract nodes and edges
 nodes = []
 edges = []
@@ -75,14 +72,10 @@ def plot_network_graph():
         if source in uprocs and target in uprocs and source != target:
             g.edge(source, target)
 
-    # generate the graph
- 
+    # Save and render the graph
     g.render(view=True)
 
 # Appellez la fonction pour visualiser le graphe lorsque l'application Streamlit est exécutée
 if __name__ == "__main__":
     st.title("Orange Kenobi")
     plot_network_graph()
-
-
-
