@@ -114,7 +114,6 @@ def plot_network_graph():
         node_id = node_data["id"]
         nt.nodes[node_id]["title"] = f"{node_id}\n{node_data['title']}"
 
-
     # generate the graph
  
     nt.save_graph(f'data_flow_graph.html')
