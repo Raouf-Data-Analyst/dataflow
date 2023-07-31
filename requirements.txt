@@ -6,4 +6,4 @@ networkx
 pyvis
 pydeck
 graphviz 
-pygraphviz
+pydot
