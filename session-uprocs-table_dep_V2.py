@@ -53,7 +53,7 @@ def plot_network_graph():
             add_table_deps_nodes(uprocs_name, uprocs_info.get("table_deps", {}))
 
     # Create a graph
-    g = graphviz.Digraph('G', filename='cluster_edge.gv')
+    g = graphviz.Digraph('G', filename='cluster_edge.gv', format='png', engine='dot', executable='C:\Users\alarouci\Graphviz\bin\dot')
     g.attr(compound='true')
 
     # Create clusters for sessions and add nodes to clusters
