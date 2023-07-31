@@ -86,7 +86,6 @@ def plot_network_graph():
     # Add node label (name) to the attributes
     node_attributes["label"] = node_id
 
-    nt.add_node(node_id, **node_attributes)
 
 
     # Add edges with arrows for dependencies
