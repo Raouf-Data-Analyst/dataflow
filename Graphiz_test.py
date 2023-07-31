@@ -1709,7 +1709,11 @@ data = """
 json_data = json.loads(data)
 nodes = []
 edges = []
-    # Function to add nodes and edges for inputs and outputs
+
+
+# Create the function to visualize the graph on Streamlit
+def plot_network_graph():
+        # Function to add nodes and edges for inputs and outputs
     def add_input_output_nodes(process_name, inputs, outputs):
         for inp in inputs:
             nodes.append({"id": inp, "title": "", "color": ""})
@@ -1738,9 +1742,6 @@ edges = []
             nodes.append({"id": uprocs_name, "title": "", "color": ""})
             edges.append((process_name, uprocs_name))
             add_table_deps_nodes(uprocs_name, uprocs_info.get("table_deps", {}))
-
-# Create the function to visualize the graph on Streamlit
-def plot_network_graph():
     # Your code to create the graph here (copy the content of your plot_network_graph() function)
 
     # Create a graph
