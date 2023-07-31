@@ -77,7 +77,7 @@ def plot_network_graph():
 
     # generate the graph
  
-g.render(view=True)
+    g.render(view=True)
 
 # Appellez la fonction pour visualiser le graphe lorsque l'application Streamlit est exécutée
 if __name__ == "__main__":
