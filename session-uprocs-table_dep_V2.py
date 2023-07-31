@@ -1,6 +1,7 @@
 import json
 import graphviz
 import streamlit as st
+import networkx as nx
 
 # File uploader
 uploaded_file = st.sidebar.file_uploader("Upload JSON data", type=["json"])
