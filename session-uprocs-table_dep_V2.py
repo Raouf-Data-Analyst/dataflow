@@ -109,10 +109,6 @@ def plot_network_graph():
         if source in sessions and target in sessions:
             nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
 
-    # Set node titles (node_data["title"]) to be displayed inside the nodes
-    for node_data in nodes:
-        node_id = node_data["id"]
-        nt.nodes[node_id]["title"] = f"{node_id}\n{node_data['title']}"
 
     # generate the graph
  
