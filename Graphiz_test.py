@@ -1,6 +1,6 @@
 import json
 import streamlit as st
-import pygraphviz as pgv
+import pydot
 import streamlit.components.v1 as components
 
 # File uploader
@@ -14,31 +14,32 @@ else:
     st.stop()
 
 def plot_network_graph():
-    # Create a directed graph (DiGraph) using Graphviz
-    G = pgv.AGraph(directed=True)
+    # Create a directed graph (DiGraph) using pydot
+    G = pydot.Dot(directed=True)
 
     # Add nodes and edges to the graph
     for process_name, process_info in json_data.items():
-        G.add_node(process_name, shape="box")
+        process_node = pydot.Node(process_name, shape="box")
+        G.add_node(process_node)
         for uprocs_info in process_info.get("uprocs", []):
             uprocs_name = uprocs_info.get("name")
-            G.add_node(uprocs_name, shape="box")
-            G.add_edge(process_name, uprocs_name)
+            uprocs_node = pydot.Node(uprocs_name, shape="box")
+            G.add_node(uprocs_node)
+            G.add_edge(pydot.Edge(process_node, uprocs_node))
             table_deps = uprocs_info.get("table_deps", {})
             for table_dep, table_dep_content in table_deps.items():
-                if table_dep not in G.nodes():
-                    G.add_node(table_dep, shape="box", color="cyan", style="filled")
-                G.add_edge(uprocs_name, table_dep)
+                table_dep_node = G.get_node(table_dep)
+                if not table_dep_node:
+                    table_dep_node = pydot.Node(table_dep, shape="box", color="cyan", style="filled")
+                    G.add_node(table_dep_node)
+                G.add_edge(pydot.Edge(uprocs_node, table_dep_node))
 
     # Define graph properties
-    G.graph_attr["rankdir"] = "TB"  # Top to bottom layout
-    G.graph_attr["bgcolor"] = "#222222"
-    G.node_attr["fontcolor"] = "white"
-    G.node_attr["color"] = "white"
+    G.set("rankdir", "TB")  # Top to bottom layout
 
     # Save the graph as an image
     graph_path = "data_flow_graph.png"
-    G.draw(graph_path, format="png")
+    G.write_png(graph_path)
 
     # Display the graph using Streamlit
     st.header('Dépendance entre sessions-uprocs-table_deps')
