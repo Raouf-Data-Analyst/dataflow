@@ -52,29 +52,27 @@ def plot_network_graph():
             edges.append((process_name, uprocs_name))
             add_table_deps_nodes(uprocs_name, uprocs_info.get("table_deps", {}))
 
-    # Create a graph using graphviz.Digraph
-    g = graphviz.Digraph('G', filename='cluster_edge.gv', format='png', engine=r'C:\Users\alarouci\Graphviz\bin\dot.exe')
-    g.attr(compound='true')
+    G = nx.DiGraph()
 
-    # Create clusters for sessions and add nodes to clusters
-    with g.subgraph(name='cluster0') as c:
-        c.attr(label='Sessions', color='blue', style='filled')
-        for session in sessions:
-            c.node(session, shape="box")
+    # Add nodes and edges to the graph
+    G.add_nodes_from(node_data["id"] for node_data in nodes)
+    G.add_edges_from(edges)
 
-    # Add nodes with attributes to the graph
+    # Create a Graphviz graph
+    graph = graphviz.Digraph(format="png")  # Use "png" format for image output (you can change it to other formats)
+
+    # Add nodes with their attributes to the Graphviz graph
     for node_data in nodes:
         node_id = node_data["id"]
-        g.node(node_id, label=node_id)
+        node_title = node_data["title"]
+        graph.node(node_id, label=node_title)  # Set node label as title (tooltip text)
 
-    # Add edges with connections between uprocs in different session clusters
-    for edge in edges:
-        source, target = edge
-        if source in uprocs and target in uprocs and source != target:
-            g.edge(source, target)
+    # Add edges to the Graphviz graph
+    for source, target in edges:
+        graph.edge(source, target)
 
-    # Save and render the graph
-    g.render(view=True)
+    # Render the Graphviz graph using Streamlit graphviz_chart()
+    st.graphviz_chart(graph)
 
 # Appellez la fonction pour visualiser le graphe lorsque l'application Streamlit est exécutée
 if __name__ == "__main__":
