@@ -77,12 +77,7 @@ def plot_network_graph():
 
     # generate the graph
  
-    g.save_graph(f'data_flow_graph.html')
-    st.header('Dépendance entre sessions-uprocs-table_deps')
-    HtmlFile = open(f'data_flow_graph.html','r',encoding='utf-8')
-
-    # Load HTML into HTML component for display on Streamlit
-    components.html(HtmlFile.read(), height=800, width=800)
+g.render(view=True)
 
 # Appellez la fonction pour visualiser le graphe lorsque l'application Streamlit est exécutée
 if __name__ == "__main__":
