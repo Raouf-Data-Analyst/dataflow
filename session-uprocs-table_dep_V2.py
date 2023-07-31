@@ -19,7 +19,7 @@ else:
 nodes = []
 edges = []
 
-ef plot_network_graph():
+def plot_network_graph():
     # Function to add nodes and edges for inputs and outputs
     def add_input_output_nodes(process_name, inputs, outputs):
         for inp in inputs:
