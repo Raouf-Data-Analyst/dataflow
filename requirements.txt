@@ -7,3 +7,4 @@ pyvis
 pydeck
 graphviz 
 pydot
+google-cloud-bigquery
