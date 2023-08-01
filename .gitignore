@@ -1,1 +1,13 @@
+# .streamlit/secrets.toml
 
+[gcp_service_account]
+type = "service_account"
+project_id = "modern-unison-394608"
+private_key_id = "4ed1a2dde60675cc3efbef6ebad50cd62fb87e53"
+private_key = "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDUOavZNqUPZww+\nMR/ZiqEp4RnSAOYS2kaBkVF/zVtdh8EXWLwPJ+jk3DCl1z5zgrnqNBORrN3GjE0a\nsV1vRaMA5o+K3ZC8k/9H0HTJQS1dWvb04Coaww0ng5yUnbgkfDnKgCYumGRKZyJ/\nnsPJtf1/YbsZl7VZ889jLREETCfVxc7lTHa0OLWKklmVWyzjdyUEa7TM5eArHHVP\nSH+BdatMJUYV/lA3cxbTEY/OTjxQPflZX8yoJ0xbDw6xVLN8Fh8uR4464BRslHtH\nvCK09xMBljqjEbZ7kSu75wfMEF8NH1LrOjNPoViT+h5R9gve63ADwIFuruw+2J0v\nhLwDN0NtAgMBAAECggEANDjzyWnZsKJYICao8nhbQ6mtV6CafOmi32fBsQv4r1mE\nQYk3j5gvxj9LpkeCydxRgOjrJtXtpdmo8IhUGFk/rO1PRanTX6AgeYy5bDuiXN5R\nNj1CBx9XqZFIksaDxVCfTO3/V0hvJ2LdGZ/ZCFYE6NdE+d17xgSJlBtHHHJb/A1z\n2d+wwWtLevm/5R345KhFMa7KAYf7xq/B3FP8UYxb9zMeJxk9Zm+W3fKc7BRzbrfL\nm7joKsHSGnPqUwKZ7kKST6Sv2taQJgRwQT/NilNUzOxGSvIavbogY0uQULdOHCp9\nIVSRzP9D89iYOaeOy3oT7qFH9u+6UY+I9GOwj0pmMQKBgQDyGOkx0RRNm6KAkIQk\nILlQCbPKrrAr4jm4wqTD/TA9QbpG/K7eUE1SKnYJS9glFle+D6WTd7G3DW+qZGp0\ngP09IEQt/OrD6Bt9oKCRADmlndkhv88TMJGyX5vGNRnj2dkMCRl2IEgv27c1KbFL\nb0vONMZ02G3i7UcvS2O6PZj3vQKBgQDgaZwPpbRAh3gI8gPmDbeLTL+0riJA3000\nT69WlGqdc8EQpPg9YlgAXG9tyExPPFsyH9K6IBC8gRk56NI2ngjOJSBJdUb/6CI7\n11Ml8xiVShm+a76nBq1i8oRGVeuO/fGD/4EEqF5Wvcz84IlKIPHjz3EQmH9IgGEs\n3xUlTH+dcQKBgCIuXDZZY7l1YOMwBEgpiqB/TjAuq9b2UNoCOUsmozny3r8JDBN9\nWP1h21qCp9jMp8TA5srEWoYS0pJHLTSXxalstdOcYvUX/1GkbScr1ffJKo/2SeFW\nuStrDk5Uzvv5lQh6/GpOMoL3TY2m/k49P4G0t9RlflZM1AEcbs8rxT4tAoGAAxFu\nkMgzLq6rdXPZmcuWNtFVzaKT1U84Pv7X5tcgngZ3HUMkIbK2gUrCOz4BzROGK6lD\nuEe38tvQ/HmyZgzDEg5v4pE350fFMAxBlsM8Es5wi6ntcVsmA7RNGqkSD2JpauST\nXvzuTUFLDCoFtn280OCFKzTqiJM4wORL5bamCAECgYBJCf+1y6xtVYCtpQefd5CI\nErJWF4E66iHbkBlTki1G4LRvB6RfN161q2ZKObAM++qH5qDqbD3WZXh9BHvd3uJA\n3SjRH1F7U9YKBTV3xMgf4VPqe4uWfNf7C/VLOcwXWbo0dL5cG+0FGSC41nFOV5JM\n2x0P1VrZUIUz6wxHcZJFTw==\n-----END PRIVATE KEY-----\n"
+client_email = "kenobi-acc@modern-unison-394608.iam.gserviceaccount.com"
+client_id = "117608903866776672433"
+auth_uri = "https://accounts.google.com/o/oauth2/auth"
+token_uri = "https://accounts.google.com/o/oauth2/auth"
+auth_provider_x509_cert_url = "https://www.googleapis.com/oauth2/v1/certs"
+client_x509_cert_url ="https://www.googleapis.com/robot/v1/metadata/x509/kenobi-acc%40modern-unison-394608.iam.gserviceaccount.com"
