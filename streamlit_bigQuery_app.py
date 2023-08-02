@@ -15,7 +15,7 @@ pandas_gbq.context.credentials = credentials
 def run_query():
     query = "SELECT word FROM bigquery-public-data.samples.shakespeare LIMIT 10"
     project_id = "modern-unison-394608"
-    df = pandas_gbq.read_gbq(query, project_id=project_id, dialect='standard')
+    df = pandas_gbq.read_gbq(query, project_id=project_id, dialect='standard',auth_local_webserver=False)
     return df
 
 df = run_query()
