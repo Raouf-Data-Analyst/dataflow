@@ -3,6 +3,7 @@
 import streamlit as st
 from google.oauth2 import service_account
 from google.cloud import bigquery
+import pandas as pd 
 
 # Create API client.
 credentials = service_account.Credentials.from_service_account_info(
@@ -15,9 +16,9 @@ client = bigquery.Client(credentials=credentials)
 @st.cache_data(ttl=600)
 def run_query(query):
     query_job = client.query(query)
-    rows_raw = query_job.result()
-    # Convert to list of dictionaries.
-    rows = [dict(row.items()) for row in rows_raw]
+    df = query_job.to_dataframe()
+    # Convert DataFrame to list of dictionaries.
+    rows = df.to_dict(orient='records')
     return rows
 
 rows = run_query("SELECT word FROM `bigquery-public-data.samples.shakespeare` LIMIT 10")
