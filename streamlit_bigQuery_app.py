@@ -4,9 +4,8 @@ from google.oauth2 import service_account
 import pandas as pd
 
 # Create API client.
-credentials = service_account.Credentials.from_service_account_info(
-    st.secrets["gcp_service_account"]
-)
+credentials = service_account.Credentials.from_service_account_info(st.secrets["gcp_service_account"])
+
 pandas_gbq.context.credentials = credentials
 
 # Perform query.
