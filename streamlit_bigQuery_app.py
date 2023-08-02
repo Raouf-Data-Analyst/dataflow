@@ -20,5 +20,5 @@ df = run_query()
 
 # Print results.
 st.write("Some wise words from Shakespeare:")
-for index, row in df.iterrows():
-    st.write("✍️ " + row[word])
+for row in df.itertuples():
+    st.write("✍️ " + row.word)
