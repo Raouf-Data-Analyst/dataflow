@@ -8,4 +8,4 @@ pydeck
 graphviz 
 pydot
 google-cloud-bigquery =>3.11.4
-pandas-gbq
+pandas_gbq
