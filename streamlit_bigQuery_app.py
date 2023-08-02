@@ -13,8 +13,8 @@ pandas_gbq.context.credentials = credentials
 # Uses st.cache_data to only rerun when the query changes or after 10 min.
 @st.cache_data(ttl=600)
 def run_query():
-    df = pandas_gbq.read_gbq("SELECT word FROM bigquery-public-data.samples.shakespeare LIMIT 10", project_id= "modern-unison-394608")
-    return df
+    q = pandas_gbq.read_gbq("SELECT word FROM bigquery-public-data.samples.shakespeare LIMIT 10", project_id= "modern-unison-394608")
+    return q
 
 df = run_query()
 
