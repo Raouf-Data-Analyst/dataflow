@@ -16,8 +16,8 @@ client = bigquery.Client(credentials=credentials)
 def run_query(query):
     query_job = client.query(query)
     rows_raw = query_job.result()
-    # Convert to list of dicts. Required for st.cache_data to hash the return value.
-    rows = [dict(row) for row in rows_raw]
+    # Convert to list of dictionaries.
+    rows = [dict(row.items()) for row in rows_raw]
     return rows
 
 rows = run_query("SELECT word FROM `bigquery-public-data.samples.shakespeare` LIMIT 10")
