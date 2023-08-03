@@ -1,6 +1,10 @@
 import json
+import networkx as nx
+from pyvis.network import Network 
 import streamlit as st
-from pyvis.network import Network
+import pydeck as pdk
+import streamlit.components.v1 as components
+import graphviz
 
 # File uploader
 uploaded_file = st.sidebar.file_uploader("Upload JSON data", type=["json"])
