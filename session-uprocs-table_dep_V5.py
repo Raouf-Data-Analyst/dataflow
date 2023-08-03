@@ -79,8 +79,8 @@ def plot_network_graph():
 
     if not show_session_dependencies:
         # Hide edges between main process and uprocs/table_deps
-        edges = [edge for edge in edges if edge[0] not in json_data]
-
+        edges = [edge for edge in edges if edge[0] not in json_data or edge[0] == edge[1]] # Keep self loops
+        
     for edge in edges:
         source, target = edge
         nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")
