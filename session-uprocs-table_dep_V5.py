@@ -86,7 +86,16 @@ def plot_network_graph():
     for process_name in json_data:
         edges.append((main_process_name, process_name))
 
-    nt.clustering.update(main_process_cluster_options)
+    cluster_options = {
+        "joinCondition": "function(childOptions) { return childOptions.color == '#FF0000'; }",
+        "clusterNodeProperties": {
+            "shape": "database",
+            "font": {"size": 30},
+            "size": 30,
+            "color": "#FFA500",
+        },
+    }
+    nt.cluster(**cluster_options)
 
     nt.save_graph(f'data_flow_graph.html')
     st.header('Dépendance entre sessions-uprocs-table_deps V5')
