@@ -86,12 +86,6 @@ def plot_network_graph():
 
         nt.add_node(node_id, label=node_id, **node_attributes)
 
-    # Create clusters for sessions and uprocs
-    session_cluster_options = {"joinCondition":"function(nodeOptions) { return (nodeOptions.color == '" + uprocs_color + "') }", "clusterNodeProperties":{"borderWidth":3,"shape":"dot","font":{"size":30},"size":30}}
-    nt.cluster(session_cluster_options)
-    
-    uprocs_cluster_options = {"joinCondition":"function(nodeOptions) { return (nodeOptions.color == '" + input_output_color + "') }", "clusterNodeProperties":{"borderWidth":3,"shape":"dot","font":{"size":30},"size":30}}
-    nt.cluster(uprocs_cluster_options)
 
     # Add edges with arrows for dependencies
     for edge in G.edges:
