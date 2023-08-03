@@ -49,16 +49,7 @@ def plot_network_graph():
             nodes.append({"id": uprocs_name, "title": "", "color": ""})
             edges.append((process_name, uprocs_name))
             add_table_deps_nodes(uprocs_name, uprocs_info.get("table_deps", {}))
-    # Add edges with arrows for dependencies
-    for edge in G.edges:
-        source, target = edge
-    # Check if source node exists, if not create a new node
-        if source not in nt.get_nodes():
-            nt.add_node(source, label=source)
-    # Check if target node exists, if not create a new node
-        if target not in nt.get_nodes():
-            nt.add_node(target, label=target)
-            nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")
+
 
     # Create a graph
     G = nx.DiGraph()
@@ -95,6 +86,17 @@ def plot_network_graph():
             node_attributes["color"] = table_deps_color
 
         nt.add_node(node_id, label=node_id, **node_attributes)
+
+      # Add edges with arrows for dependencies
+    for edge in G.edges:
+        source, target = edge
+    # Check if source node exists, if not create a new node
+        if source not in nt.get_nodes():
+            nt.add_node(source, label=source)
+    # Check if target node exists, if not create a new node
+        if target not in nt.get_nodes():
+            nt.add_node(target, label=target)
+            nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")
 
     # Create clusters for sessions and uprocs
     session_cluster_options = {"joinCondition":"function(nodeOptions) { return (nodeOptions.color == '" + uprocs_color + "') }", "clusterNodeProperties":{"borderWidth":3,"shape":"dot","font":{"size":30},"size":30}}
