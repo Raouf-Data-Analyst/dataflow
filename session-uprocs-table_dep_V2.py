@@ -49,6 +49,16 @@ def plot_network_graph():
             nodes.append({"id": uprocs_name, "title": "", "color": ""})
             edges.append((process_name, uprocs_name))
             add_table_deps_nodes(uprocs_name, uprocs_info.get("table_deps", {}))
+    # Add edges with arrows for dependencies
+    for edge in G.edges:
+        source, target = edge
+    # Check if source node exists, if not create a new node
+        if source not in nt.get_nodes():
+        nt.add_node(source, label=source)
+    # Check if target node exists, if not create a new node
+        if target not in nt.get_nodes():
+        nt.add_node(target, label=target)
+        nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")
 
     # Create a graph
     G = nx.DiGraph()
@@ -111,5 +121,18 @@ def plot_network_graph():
 if __name__ == "__main__":
     st.title("Orange Kenobi")
     plot_network_graph()
+
+
+
+# Add edges with arrows for dependencies
+for edge in G.edges:
+    source, target = edge
+    # Check if source node exists, if not create a new node
+    if source not in nt.get_nodes():
+        nt.add_node(source, label=source)
+    # Check if target node exists, if not create a new node
+    if target not in nt.get_nodes():
+        nt.add_node(target, label=target)
+    nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")
 
 
