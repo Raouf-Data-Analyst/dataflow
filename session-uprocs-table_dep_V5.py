@@ -45,7 +45,7 @@ def plot_network_graph():
             add_table_deps_nodes(uprocs_name, uprocs_info.get("table_deps", {}))
             
             for table_dep in uprocs_info.get("table_deps", {}):
-                edges.append((process_name, table_dep))
+                edges.append((uprocs_name, table_dep))
 
     G = nx.DiGraph()
 
@@ -77,12 +77,11 @@ def plot_network_graph():
 
     show_session_dependencies = st.sidebar.checkbox("Show Session Dependencies", value=True)
 
-    if not show_session_dependencies:
-        # Hide edges between main process and uprocs/table_deps
-        edges = [edge for edge in edges if edge[0] not in json_data]
-
     for edge in edges:
         source, target = edge
+        if not show_session_dependencies and source in json_data and target in json_data:
+            continue  # Skip edges between sessions (main process)
+
         nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")
 
     nt.save_graph(f'data_flow_graph.html')
