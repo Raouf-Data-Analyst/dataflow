@@ -34,7 +34,7 @@ def plot_network_graph():
     def add_table_deps_nodes(uprocs_name, table_deps):
         for table_dep, table_dep_content in table_deps.items():
             if table_dep not in nodes:
-                nodes.append({"id": table_dep, "title": table_dep_content, "color": "#00FFFF", "shape": "circle"}) 
+                nodes.append({"id": table_dep, "title": table_dep_content, "color": "#00FFFF", "shape": "box"}) 
             edges.append((uprocs_name, table_dep))
 
     # Process each process (uprocs) in the JSON data
