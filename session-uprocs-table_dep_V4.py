@@ -90,14 +90,14 @@ def plot_network_graph():
 
         nt.add_node(node_id, **node_attributes)
 
-      # Add edges with arrows for dependencies
-        for edge in G.edges:
-            source, target = edge
-            nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
+    # Add edges with arrows for dependencies
+    for edge in G.edges:
+        source, target = edge
+        nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
 
     # generate the graph
     nt.save_graph(f'data_flow_graph.html')
-    st.header('Dépendance entre sessions-uprocs-table_deps V4')
+    st.header('Dépendance entre sessions-uprocs-table_deps V5')
     HtmlFile = open(f'data_flow_graph.html','r',encoding='utf-8')
 
     # Load HTML into HTML component for display on Streamlit
