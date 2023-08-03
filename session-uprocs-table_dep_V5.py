@@ -2,9 +2,7 @@ import json
 import networkx as nx
 from pyvis.network import Network 
 import streamlit as st
-import pydeck as pdk
 import streamlit.components.v1 as components
-import graphviz
 
 def plot_network_graph():
     nodes = []
@@ -77,25 +75,15 @@ def plot_network_graph():
 
         nt.add_node(node_id, **node_attributes)
 
-    for edge in G.edges:
+    show_session_dependencies = st.sidebar.checkbox("Show Session Dependencies", value=True)
+
+    if not show_session_dependencies:
+        # Hide edges between main process and uprocs/table_deps
+        edges = [edge for edge in edges if edge[0] not in json_data]
+
+    for edge in edges:
         source, target = edge
         nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")
-
-    main_process_name = "Main Process"
-    nodes.append({"id": main_process_name, "title": "", "color": "#FFA500", "shape": "box"})
-    for process_name in json_data:
-        edges.append((main_process_name, process_name))
-
-    cluster_options = {
-        "joinCondition": "function(childOptions) { return childOptions.color == '#FF0000'; }",
-        "clusterNodeProperties": {
-            "shape": "database",
-            "font": {"size": 30},
-            "size": 30,
-            "color": "#FFA500",
-        },
-    }
-    nt.cluster(**cluster_options)
 
     nt.save_graph(f'data_flow_graph.html')
     st.header('Dépendance entre sessions-uprocs-table_deps V5')
