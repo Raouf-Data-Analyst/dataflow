@@ -73,10 +73,12 @@ def plot_network_graph():
         source, target = edge
         nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
 
-    # Display the graph using pyvis in Streamlit
+    nt.save_graph(f'data_flow_graph.html')
     st.header('Dépendance entre sessions-uprocs-table_deps')
-    st_pyvis_chart(nt)
+    HtmlFile = open(f'data_flow_graph.html','r',encoding='utf-8')
 
+    # Load HTML into HTML component for display on Streamlit
+    components.html(HtmlFile.read(), height=800, width=800)
 # Appellez la fonction pour visualiser le graphe lorsque l'application Streamlit est exécutée
 if __name__ == "__main__":
     st.title("Orange Kenobi")
