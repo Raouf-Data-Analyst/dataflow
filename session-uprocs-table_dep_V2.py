@@ -54,11 +54,11 @@ def plot_network_graph():
         source, target = edge
     # Check if source node exists, if not create a new node
         if source not in nt.get_nodes():
-        nt.add_node(source, label=source)
+            nt.add_node(source, label=source)
     # Check if target node exists, if not create a new node
         if target not in nt.get_nodes():
-        nt.add_node(target, label=target)
-        nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")
+            nt.add_node(target, label=target)
+            nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")
 
     # Create a graph
     G = nx.DiGraph()
