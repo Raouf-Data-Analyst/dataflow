@@ -96,7 +96,7 @@ def plot_network_graph():
 
     # generate the graph
     nt.save_graph(f'data_flow_graph.html')
-    st.header('Dépendance entre sessions-uprocs-table_deps')
+    st.header('Dépendance entre sessions-uprocs-table_deps V1')
     HtmlFile = open(f'data_flow_graph.html','r',encoding='utf-8')
 
     # Load HTML into HTML component for display on Streamlit
