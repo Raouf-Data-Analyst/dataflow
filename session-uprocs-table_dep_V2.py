@@ -50,44 +50,6 @@ def plot_network_graph():
     # Create a graph
     nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook=True,cdn_resources='remote', select_menu = True, filter_menu=True)  
     nt.show_buttons(filter_=['physics'])
-    nt.set_options(
-        """
-        var options = {
-            "nodes": {
-                "shape": "dot",
-                "font": {
-                    "size": 30
-                },
-                "size": 30,
-                "color": {
-                    "border": "#222222",
-                    "background": "#666666"
-                }
-            },
-            "edges": {
-                "color": {
-                    "inherit": True
-                },
-                "width": 0.15,
-                "smooth": {
-                    "type": "continuous"
-                }
-            },
-            "physics": {
-                "barnesHut": {
-                    "gravitationalConstant": -80000,
-                    "centralGravity": 0.2,
-                    "springLength": 250,
-                    "springConstant": 0.001,
-                    "damping": 0.09,
-                    "avoidOverlap": 0
-                },
-                "minVelocity": 0.75
-            }
-        }
-        """
-    )
-
     # Add nodes with attributes to the graph
     for node_data in nodes:
         node_attributes = {}  # You can modify this to include additional attributes if needed
