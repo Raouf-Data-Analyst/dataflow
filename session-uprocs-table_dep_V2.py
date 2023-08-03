@@ -1,8 +1,6 @@
 import json
 import streamlit as st
-import streamlit.components.v1 as components
-import pydeck as pdk
-import pandas as pd
+from pyvis.network import Network
 
 # File uploader
 uploaded_file = st.sidebar.file_uploader("Upload JSON data", type=["json"])
@@ -49,26 +47,72 @@ def plot_network_graph():
             edges.append((process_name, uprocs_name))
             add_table_deps_nodes(uprocs_name, uprocs_info.get("table_deps", {}))
 
-    # Create a DataFrame for nodes and edges
-    nodes_df = pd.DataFrame(nodes)
-    edges_df = pd.DataFrame(edges, columns=["source", "target"])
-
-    # Create the pydeck visualization using the GraphLayer
-    view_state = pdk.ViewState(latitude=0, longitude=0, zoom=1)
-    graph_layer = pdk.GraphLayer(
-        id="graph-layer",
-        node_data=nodes_df,
-        edge_data=edges_df,
-        get_source_position=["longitude", "latitude"],
-        get_target_position=["longitude", "latitude"],
-        get_width=1,
-        get_color="color",
-        highlight_color=[200, 200, 200, 200],
-        directed=True,
+    # Create a graph
+    nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook=True, cdn=False)
+    nt.set_options(
+        """
+        var options = {
+            "nodes": {
+                "shape": "dot",
+                "font": {
+                    "size": 30
+                },
+                "size": 30,
+                "color": {
+                    "border": "#222222",
+                    "background": "#666666"
+                }
+            },
+            "edges": {
+                "color": {
+                    "inherit": True
+                },
+                "width": 0.15,
+                "smooth": {
+                    "type": "continuous"
+                }
+            },
+            "physics": {
+                "barnesHut": {
+                    "gravitationalConstant": -80000,
+                    "centralGravity": 0.2,
+                    "springLength": 250,
+                    "springConstant": 0.001,
+                    "damping": 0.09,
+                    "avoidOverlap": 0
+                },
+                "minVelocity": 0.75
+            }
+        }
+        """
     )
 
-    # Display the graph using pydeck in Streamlit
-    st.pydeck_chart(pdk.Deck(layers=[graph_layer], initial_view_state=view_state))
+    # Add nodes with attributes to the graph
+    for node_data in nodes:
+        node_attributes = {}  # You can modify this to include additional attributes if needed
+        node_id = node_data["id"]
+        node_attributes["title"] = node_data["title"]  # Use 'title' to set the tooltip text
+
+        # Check if the node is an "uprocs" or an input/output node and update the color accordingly
+        if node_id in json_data:
+            node_attributes["color"] = "#FF0000"  # Red for uprocs
+        else:
+            node_attributes["color"] = "#00FF00"  # Green  for input/output nodes
+
+        # Check if the node has "table_deps" and update the color accordingly
+        if node_id in [table_dep["id"] for table_dep in nodes if table_dep["color"] == "#00FFFF"]:
+            node_attributes["color"] = "#00FFFF"  # Cyan  for nodes with table_deps
+
+        nt.add_node(node_id, label=node_id, **node_attributes)
+
+    # Add edges with arrows for dependencies
+    for edge in edges:
+        source, target = edge
+        nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
+
+    # Display the graph using pyvis in Streamlit
+    st.header('Dépendance entre sessions-uprocs-table_deps')
+    st_pyvis_chart(nt)
 
 # Appellez la fonction pour visualiser le graphe lorsque l'application Streamlit est exécutée
 if __name__ == "__main__":
