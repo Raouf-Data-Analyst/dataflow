@@ -1,6 +1,4 @@
 import json
-import networkx as nx
-from pyvis.network import Network
 import streamlit as st
 import streamlit.components.v1 as components
 import pydeck as pdk
@@ -51,101 +49,9 @@ def plot_network_graph():
             edges.append((process_name, uprocs_name))
             add_table_deps_nodes(uprocs_name, uprocs_info.get("table_deps", {}))
 
-    # Create a graph
-    G = nx.DiGraph()
-
-    # Add nodes and edges to the graph
-    G.add_nodes_from(node_data["id"] for node_data in nodes)
-    G.add_edges_from(edges)
-
-    # Plot the interactive diagram using pyvis
-    nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook=True)  
-    nt.show_buttons(filter_=['physics'])
-
-    # Define colors for uprocs, input/output nodes, and nodes with table_deps
-    uprocs_color = "#FF0000"  # Red for uprocs
-    input_output_color = "#00FF00"  # Green for input/output nodes
-    table_deps_color = "#00FFFF"  # Cyan for nodes with table_deps
-
-    # Add nodes with attributes to the graph
-    for node_data in nodes:
-        node_attributes = {}
-        node_id = node_data["id"]
-        node_attributes["title"] = node_data["title"]  # Use 'title' to set the tooltip text
-
-        # Check if the node is an "uprocs" or an input/output node and update the color accordingly
-        if node_id in json_data:
-            node_attributes["color"] = uprocs_color
-            node_attributes["group"] = "uprocs"  # Add the 'group' attribute for clusters
-        else:
-            node_attributes["color"] = input_output_color
-
-        # Check if the node has "table_deps" and update the color accordingly
-        if node_id in [table_dep["id"] for table_dep in nodes if table_dep["color"] == table_deps_color]:
-            node_attributes["color"] = table_deps_color
-
-        nt.add_node(node_id, label=node_id, **node_attributes)
-
-    # Create clusters for sessions and uprocs
-    nt.set_options("""{
-      "nodes": {
-        "borderWidth": 3,
-        "font": {
-          "size": 30
-        },
-        "shape": "dot"
-      },
-      "edges": {
-        "arrows": {
-          "to": {
-            "enabled": true,
-            "scaleFactor": 0.5
-          }
-        }
-      },
-      "physics": {
-        "enabled": true,
-        "solver": "repulsion"
-      },
-      "groups": {
-        "uprocs": {
-          "color": {
-            "background": "#FF0000",
-            "border": "#FF0000",
-            "highlight": {
-              "background": "#FF0000",
-              "border": "#FF0000"
-            }
-          },
-          "font": {
-            "color": "#FFFFFF"
-          }
-        },
-        "input_output": {
-          "color": {
-            "background": "#00FF00",
-            "border": "#00FF00",
-            "highlight": {
-              "background": "#00FF00",
-              "border": "#00FF00"
-            }
-          },
-          "font": {
-            "color": "#FFFFFF"
-          }
-        }
-      }
-    }""")
-
-    # Save the graph to an HTML file
-    nt.save_graph(f'data_flow_graph.html')
-
-    # Convert the pyvis graph to pydeck visualization
-    pydeck_data = nt.get_data()
-
-    # Prepare the pydeck graph data
-    nodes_df = pd.DataFrame([{"id": node["id"], "color": node["color"]} for node in pydeck_data["nodes"]])
-    edges_df = pd.DataFrame([{"source": edge["from"], "target": edge["to"]} for edge in pydeck_data["edges"]])
+    # Create a DataFrame for nodes and edges
+    nodes_df = pd.DataFrame(nodes)
+    edges_df = pd.DataFrame(edges, columns=["source", "target"])
 
     # Create the pydeck visualization using the GraphLayer
     view_state = pdk.ViewState(latitude=0, longitude=0, zoom=1)
