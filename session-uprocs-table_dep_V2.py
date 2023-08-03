@@ -3,6 +3,8 @@ import networkx as nx
 from pyvis.network import Network
 import streamlit as st
 import streamlit.components.v1 as components
+import pydeck as pdk
+import pandas as pd
 
 # File uploader
 uploaded_file = st.sidebar.file_uploader("Upload JSON data", type=["json"])
@@ -57,7 +59,7 @@ def plot_network_graph():
     G.add_edges_from(edges)
 
     # Plot the interactive diagram using pyvis
-    nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook=True)  
+    nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook=True, cdn=True)  
     nt.show_buttons(filter_=['physics'])
 
     # Define colors for uprocs, input/output nodes, and nodes with table_deps
@@ -135,26 +137,32 @@ def plot_network_graph():
       }
     }""")
 
-    # Add edges with arrows for dependencies
-    for edge in G.edges:
-        source, target = edge
-        # Check if source node exists, if not create a new node
-        if source not in nt.get_nodes():
-            nt.add_node(source, label=source, group="input_output")  # Assign the 'input_output' group for input/output nodes
-        # Check if target node exists, if not create a new node
-        if target not in nt.get_nodes():
-            nt.add_node(target, label=target, group="input_output")
-        nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")  # Black color for arrows
-
     # Save the graph to an HTML file
     nt.save_graph(f'data_flow_graph.html')
 
-    # Display the graph using the HTML component in Streamlit
-    st.header('Dependency between sessions-uprocs-table_deps')
-    HtmlFile = open(f'data_flow_graph.html', 'r', encoding='utf-8')
+    # Convert the pyvis graph to pydeck visualization
+    pydeck_data = nt.get_data()
 
-    # Load HTML into HTML component for display on Streamlit
-    components.html(HtmlFile.read(), height=800, width=800)
+    # Prepare the pydeck graph data
+    nodes_df = pd.DataFrame([{"id": node["id"], "color": node["color"]} for node in pydeck_data["nodes"]])
+    edges_df = pd.DataFrame([{"source": edge["from"], "target": edge["to"]} for edge in pydeck_data["edges"]])
+
+    # Create the pydeck visualization using the GraphLayer
+    view_state = pdk.ViewState(latitude=0, longitude=0, zoom=1)
+    graph_layer = pdk.GraphLayer(
+        id="graph-layer",
+        node_data=nodes_df,
+        edge_data=edges_df,
+        get_source_position=["longitude", "latitude"],
+        get_target_position=["longitude", "latitude"],
+        get_width=1,
+        get_color="color",
+        highlight_color=[200, 200, 200, 200],
+        directed=True,
+    )
+
+    # Display the graph using pydeck in Streamlit
+    st.pydeck_chart(pdk.Deck(layers=[graph_layer], initial_view_state=view_state))
 
 # Appellez la fonction pour visualiser le graphe lorsque l'application Streamlit est exécutée
 if __name__ == "__main__":
