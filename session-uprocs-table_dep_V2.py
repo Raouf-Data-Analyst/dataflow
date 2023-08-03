@@ -48,7 +48,8 @@ def plot_network_graph():
             add_table_deps_nodes(uprocs_name, uprocs_info.get("table_deps", {}))
 
     # Create a graph
-    nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook=True, cdn=False)
+    nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook=True,cdn_resources='remote', select_menu = True, filter_menu=True)  
+    nt.show_buttons(filter_=['physics'])
     nt.set_options(
         """
         var options = {
