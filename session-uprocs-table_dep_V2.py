@@ -63,7 +63,7 @@ def plot_network_graph():
     G.add_edges_from(edges)
 
     # Plot the interactived diagram using pyvis
-    nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook=True, cdn=False)
+    nt = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", directed=True, notebook=True)
     nt.show_buttons(filter_=['physics'])
     
     # Define colors for uprocs, input/output nodes, and nodes with table_deps
