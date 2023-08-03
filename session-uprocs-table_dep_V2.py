@@ -84,9 +84,14 @@ def plot_network_graph():
         if node_id in [table_dep["id"] for table_dep in nodes if table_dep["color"] == table_deps_color]:
             node_attributes["color"] = table_deps_color
 
-        nt.add_node(node_id, **node_attributes)
+        nt.add_node(node_id, label=node_id, **node_attributes)
 
-
+    # Create clusters for sessions and uprocs
+    session_cluster_options = {"joinCondition":"function(nodeOptions) { return (nodeOptions.color == '" + uprocs_color + "') }", "clusterNodeProperties":{"borderWidth":3,"shape":"dot","font":{"size":30},"size":30}}
+    nt.cluster(session_cluster_options)
+    
+    uprocs_cluster_options = {"joinCondition":"function(nodeOptions) { return (nodeOptions.color == '" + input_output_color + "') }", "clusterNodeProperties":{"borderWidth":3,"shape":"dot","font":{"size":30},"size":30}}
+    nt.cluster(uprocs_cluster_options)
 
     # Add edges with arrows for dependencies
     for edge in G.edges:
@@ -99,8 +104,6 @@ def plot_network_graph():
     st.header('Dépendance entre sessions-uprocs-table_deps')
     HtmlFile = open(f'data_flow_graph.html','r',encoding='utf-8')
 
-    # Load HTML into HTML component for display on Streamlit
-    components.html(HtmlFile.read(), height=800, width=800)
 
 # Appellez la fonction pour visualiser le graphe lorsque l'application Streamlit est exécutée
 if __name__ == "__main__":
