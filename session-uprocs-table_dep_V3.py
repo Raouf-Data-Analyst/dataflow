@@ -39,7 +39,7 @@ def plot_network_graph():
 
     # Process each process (uprocs) in the JSON data
     for process_name, process_info in json_data.items():
-        nodes.append({"id": process_name, "title": "", "color": "#FF0000", "shape": "circle"})
+        nodes.append({"id": process_name, "title": "", "color": "#FF0000", "shape": "box"})
         inputs = process_info.get("inputs", [])
         outputs = process_info.get("outputs", [])
         add_input_output_nodes(process_name, inputs, outputs)
