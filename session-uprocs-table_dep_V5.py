@@ -94,3 +94,4 @@ def plot_network_graph():
 if __name__ == "__main__":
     st.title("Orange Kenobi")
     plot_network_graph()
+ 
