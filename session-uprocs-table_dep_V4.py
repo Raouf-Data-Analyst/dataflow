@@ -85,7 +85,7 @@ def plot_network_graph():
         nt.add_edge(source, target, arrows='to', arrowStrikethrough=False, color="#87CEFA")
 
     nt.save_graph(f'data_flow_graph.html')
-    st.header('Dépendance entre sessions-uprocs-table_deps V4-1')
+    st.header('Dépendance entre sessions-uprocs-table_deps V4.1')
     HtmlFile = open(f'data_flow_graph.html','r',encoding='utf-8')
 
     components.html(HtmlFile.read(), height=800, width=800)
